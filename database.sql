@@ -256,3 +256,17 @@ CREATE TABLE detalle_factura (
         FOREIGN KEY (id_factura)
         REFERENCES factura(id_factura)
 );
+
+CREATE TABLE mensaje (
+    codigo_mensaje INTEGER PRIMARY KEY,
+    mensaje VARCHAR(255)
+);
+
+INSERT INTO mensaje(codigo_mensaje, mensaje) VALUES
+    (0, 'Operación realizada correctamente'),
+    (1, 'El nombre no puede estar vacío'),
+    (2, 'Ya existe un tipo de vehículo con ese nombre'),
+    (3, 'El tipo de vehículo no existe'),
+    (4, 'No se puede eliminar el tipo de vehículo porque está siendo utilizado'),
+    (500, 'Error interno del sistema');
+
