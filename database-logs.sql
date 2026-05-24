@@ -1,47 +1,35 @@
-CREATE TABLE cliente (
-    id_cliente SERIAL PRIMARY KEY,
-    nombre_completo VARCHAR(100),
-    dni VARCHAR(10),
-    telefono VARCHAR(30)
-);
+-- CREATE TABLE provincia (
+--     id_provincia SERIAL PRIMARY KEY,
+--     nombre_provincia VARCHAR(100)
+-- );
 
-CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    email VARCHAR(200) UNIQUE NOT NULL,
-    password VARCHAR(200) NOT NULL,
-    id_cliente INT NOT NULL,
-    CONSTRAINT fk_usuario_x_cliente
-        FOREIGN KEY (id_cliente)
-        REFERENCES cliente(id_cliente)
-);
+-- CREATE TABLE departamento (
+--     id_departamento SERIAL PRIMARY KEY,
+--     nombre_departamento VARCHAR(100),
+--     id_provincia INT,
+--     CONSTRAINT fk_departamento_x_provincia
+--         FOREIGN KEY (id_provincia)
+--         REFERENCES provincia(id_provincia)
+-- );
 
-CREATE TABLE provincia (
-    id_provincia SERIAL PRIMARY KEY,
-    nombre_provincia VARCHAR(100)
-);
-
-CREATE TABLE departamento (
-    id_departamento SERIAL PRIMARY KEY,
-    nombre_departamento VARCHAR(100),
-    id_provincia INT,
-    CONSTRAINT fk_departamento_x_provincia
-        FOREIGN KEY (id_provincia)
-        REFERENCES provincia(id_provincia)
-);
-
-CREATE TABLE sucursal (
-    id_sucursal SERIAL PRIMARY KEY,
+CREATE TABLE log_sucursal (
+    id_log INT PRIMARY KEY,
+    id_sucursal INT,
     nombre_sucursal VARCHAR(50) NOT NULL,
     direccion_sucursal VARCHAR(100),
     id_departamento INT,
-    CONSTRAINT fk_sucursal_x_departamento
-        FOREIGN KEY (id_departamento)
-        REFERENCES departamento(id_departamento)
+    mov varchar(2),
+    fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario int
 );
 
-CREATE TABLE tipo_vehiculo (
-    id_tipo_vehiculo SERIAL PRIMARY KEY,
-    nombre_tipo_vehiculo VARCHAR(50) NOT NULL UNIQUE
+CREATE TABLE log_tipo_vehiculo (
+    id_log INT PRIMARY KEY,
+    id_tipo_vehiculo INT,
+    nombre_tipo_vehiculo VARCHAR(50) NOT NULL,
+    mov varchar(2),
+    fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario int
 );
 
 CREATE TABLE taller (
@@ -57,7 +45,7 @@ CREATE TABLE taller (
 
 CREATE TABLE estado_vehiculo (
     id_estado_vehiculo SERIAL PRIMARY KEY,
-    nombre_estado_vehiculo VARCHAR(15) UNIQUE
+    nombre_estado_vehiculo VARCHAR(15)
 );
 
 CREATE TABLE vehiculo (
@@ -164,7 +152,7 @@ CREATE TABLE reserva (
 
 CREATE TABLE estado_reserva (
     id_estado_reserva SERIAL PRIMARY KEY,
-    nombre_estado_reserva VARCHAR(15) UNIQUE
+    nombre_estado_reserva VARCHAR(15)
 );
 
 CREATE TABLE reserva_x_estado (
@@ -256,43 +244,3 @@ CREATE TABLE detalle_factura (
         FOREIGN KEY (id_factura)
         REFERENCES factura(id_factura)
 );
-
-CREATE TABLE mensaje (
-    codigo_mensaje INTEGER PRIMARY KEY,
-    mensaje VARCHAR(255)
-);
-
-INSERT INTO mensaje(codigo_mensaje, mensaje) VALUES
-    (0, 'Operación realizada correctamente'),
-    (100, 'El nombre no puede estar vacío'),
-    (101, 'Ya existe un registro con esos datos'),
-    (102, 'El registro no existe'),
-    (103, 'No se puede eliminar porque está siendo utilizado'),
-    (104, 'El departamento indicado no existe'),
-    (500, 'Error interno del sistema');
-
-
-
-INSERT INTO provincia (id_provincia, nombre_provincia)
-VALUES (1, 'Misiones');
-
-INSERT INTO departamento (nombre_departamento, id_provincia) VALUES
-('Apóstoles', 1),
-('Cainguás', 1),
-('Candelaria', 1),
-('Capital', 1),
-('Concepción', 1),
-('Eldorado', 1),
-('General Manuel Belgrano', 1),
-('Guaraní', 1),
-('Iguazú', 1),
-('Leandro N. Alem', 1),
-('Libertador General San Martín', 1),
-('Montecarlo', 1),
-('Oberá', 1),
-('San Ignacio', 1),
-('San Javier', 1),
-('San Pedro', 1),
-('25 de Mayo', 1);
-
-

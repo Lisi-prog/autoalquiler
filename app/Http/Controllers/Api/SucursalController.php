@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class TipoVehiculoController extends Controller
+class SucursalController extends Controller
 {
     function __construct()
     {
@@ -25,13 +25,23 @@ class TipoVehiculoController extends Controller
 
     public function store(Request $request)
     {       
+        $request->validate([
+            'nombre_sucursal' => 'required|string|max:50',
+            'direccion_sucursal' => 'nullable|string|max:100',
+            'id_departamento' => 'required|integer'
+        ]);
+
         DB::statement(
             "SET app.usuario = " . (int) auth()->id()
         );
 
         $resultado = DB::select(
-            "CALL sp_alta_tipo_vehiculo(?, NULL, NULL)",
-            [$request->nombre_tipo_vehiculo]
+            "CALL sp_alta_sucursal(?, ?, ?, NULL, NULL)",
+            [
+                $request->nombre_sucursal,
+                $request->direccion_sucursal,
+                $request->id_departamento
+            ]
         );
 
         $codigo = $resultado[0]->p_codigo;
@@ -50,7 +60,8 @@ class TipoVehiculoController extends Controller
             'success' => true,
             'codigo' => $codigo,
             'mensaje' => $mensaje
-        ], 201);             
+        ], 201);
+                     
     }
     
     public function show($id)
@@ -64,7 +75,9 @@ class TipoVehiculoController extends Controller
     public function update(Request $request, $id)
     {                        
         $request->validate([
-            'nombre_tipo_vehiculo' => 'required|string|max:100'
+            'nombre_sucursal' => 'required|string|max:50',
+            'direccion_sucursal' => 'nullable|string|max:100',
+            'id_departamento' => 'required|integer'
         ]);
 
         DB::statement(
@@ -72,10 +85,12 @@ class TipoVehiculoController extends Controller
         );
 
         $resultado = DB::select(
-            "CALL sp_modificar_tipo_vehiculo(?, ?, NULL, NULL)",
+            "CALL sp_modificar_sucursal(?, ?, ?, ?, NULL, NULL)",
             [
                 $id,
-                $request->nombre_tipo_vehiculo
+                $request->nombre_sucursal,
+                $request->direccion_sucursal,
+                $request->id_departamento
             ]
         );
 
@@ -83,6 +98,7 @@ class TipoVehiculoController extends Controller
         $mensaje = $resultado[0]->p_mensaje;
 
         if ($codigo != 0) {
+
             return response()->json([
                 'success' => false,
                 'codigo' => $codigo,
@@ -104,7 +120,7 @@ class TipoVehiculoController extends Controller
         );
         
         $resultado = DB::select(
-            "CALL sp_baja_tipo_vehiculo(?, NULL, NULL)",
+            "CALL sp_baja_sucursal(?, NULL, NULL)",
             [$id]
         );
 
@@ -112,6 +128,7 @@ class TipoVehiculoController extends Controller
         $mensaje = $resultado[0]->p_mensaje;
 
         if ($codigo != 0) {
+
             return response()->json([
                 'success' => false,
                 'codigo' => $codigo,
