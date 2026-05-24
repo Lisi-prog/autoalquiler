@@ -956,3 +956,345 @@ EXCEPTION
 
 END;
 $$;
+
+-- Alquiler
+CREATE OR REPLACE PROCEDURE sp_alta_alquiler(
+    IN p_fecha_inicio TIMESTAMP,
+    IN p_fecha_fin_prevista TIMESTAMP,
+    IN p_km_inicio INT,
+    IN p_sucursal_retiro INT,
+    IN p_sucursal_devolucion INT,
+    IN p_id_reserva INT,
+    IN p_id_cliente INT,
+    IN p_id_vehiculo INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación fecha inicio
+    IF p_fecha_inicio IS NULL THEN
+
+        p_codigo := 118;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación fecha fin prevista
+    IF p_fecha_fin_prevista IS NULL THEN
+
+        p_codigo := 119;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación rango fechas
+    IF p_fecha_fin_prevista <= p_fecha_inicio THEN
+
+        p_codigo := 120;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación kilómetros
+    IF p_km_inicio IS NULL
+       OR p_km_inicio < 0 THEN
+
+        p_codigo := 121;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación cliente
+    IF NOT EXISTS (
+        SELECT 1
+        FROM cliente
+        WHERE id_cliente = p_id_cliente
+    ) THEN
+
+        p_codigo := 113;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación vehículo
+    IF NOT EXISTS (
+        SELECT 1
+        FROM vehiculo
+        WHERE id_vehiculo = p_id_vehiculo
+    ) THEN
+
+        p_codigo := 114;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación sucursal retiro
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sucursal
+        WHERE id_sucursal = p_sucursal_retiro
+    ) THEN
+
+        p_codigo := 115;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación sucursal devolución
+    IF p_sucursal_devolucion IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM sucursal
+            WHERE id_sucursal = p_sucursal_devolucion
+       ) THEN
+
+        p_codigo := 116;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación reserva
+    IF p_id_reserva IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM reserva
+            WHERE id_reserva = p_id_reserva
+       ) THEN
+
+        p_codigo := 122;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación disponibilidad vehículo
+    IF NOT fn_vehiculo_disponible(
+        p_id_vehiculo,
+        p_fecha_inicio,
+        p_fecha_fin_prevista
+    ) THEN
+
+        p_codigo := 117;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Insert alquiler
+    INSERT INTO alquiler(
+        fecha_inicio,
+        fecha_fin_prevista,
+        km_inicio,
+        sucursal_retiro,
+        sucursal_devolucion,
+        id_reserva,
+        id_cliente,
+        id_vehiculo
+    )
+    VALUES(
+        p_fecha_inicio,
+        p_fecha_fin_prevista,
+        p_km_inicio,
+        p_sucursal_retiro,
+        p_sucursal_devolucion,
+        p_id_reserva,
+        p_id_cliente,
+        p_id_vehiculo
+    );
+
+    -- Cambiar estado vehículo
+    INSERT INTO vehiculo_x_estado(
+        id_vehiculo,
+        id_estado_vehiculo,
+        fecha_estado
+    )
+    VALUES(
+        p_id_vehiculo,
+        3,
+        CURRENT_TIMESTAMP
+    );
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 104;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_modificar_alquiler(
+    IN p_id_alquiler INT,
+    IN p_fecha_inicio TIMESTAMP,
+    IN p_fecha_fin_prevista TIMESTAMP,
+    IN p_fecha_fin_real TIMESTAMP,
+    IN p_km_inicio INT,
+    IN p_km_fin INT,
+    IN p_sucursal_retiro INT,
+    IN p_sucursal_devolucion INT,
+    IN p_id_cliente INT,
+    IN p_id_vehiculo INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación existencia
+    IF NOT EXISTS (
+        SELECT 1
+        FROM alquiler
+        WHERE id_alquiler = p_id_alquiler
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación rango fechas
+    IF p_fecha_fin_prevista <= p_fecha_inicio THEN
+
+        p_codigo := 120;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación km final
+    IF p_km_fin IS NOT NULL
+       AND p_km_fin < p_km_inicio THEN
+
+        p_codigo := 123;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Update
+    UPDATE alquiler
+    SET fecha_inicio = p_fecha_inicio,
+        fecha_fin_prevista = p_fecha_fin_prevista,
+        fecha_fin_real = p_fecha_fin_real,
+        km_inicio = p_km_inicio,
+        km_fin = p_km_fin,
+        sucursal_retiro = p_sucursal_retiro,
+        sucursal_devolucion = p_sucursal_devolucion,
+        id_cliente = p_id_cliente,
+        id_vehiculo = p_id_vehiculo
+    WHERE id_alquiler = p_id_alquiler;
+
+    -- Si finalizó → vehículo disponible
+    IF p_fecha_fin_real IS NOT NULL THEN
+
+        INSERT INTO vehiculo_x_estado(
+            id_vehiculo,
+            id_estado_vehiculo,
+            fecha_estado
+        )
+        VALUES(
+            p_id_vehiculo,
+            1,
+            CURRENT_TIMESTAMP
+        );
+
+    END IF;
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_baja_alquiler(
+    IN p_id_alquiler INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_vehiculo INT;
+BEGIN
+
+    -- Validación existencia
+    IF NOT EXISTS (
+        SELECT 1
+        FROM alquiler
+        WHERE id_alquiler = p_id_alquiler
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Obtener vehículo
+    SELECT id_vehiculo
+    INTO v_id_vehiculo
+    FROM alquiler
+    WHERE id_alquiler = p_id_alquiler;
+
+    -- Delete
+    DELETE FROM alquiler
+    WHERE id_alquiler = p_id_alquiler;
+
+    -- Vehículo disponible
+    INSERT INTO vehiculo_x_estado(
+        id_vehiculo,
+        id_estado_vehiculo,
+        fecha_estado
+    )
+    VALUES(
+        v_id_vehiculo,
+        1,
+        CURRENT_TIMESTAMP
+    );
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 103;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;

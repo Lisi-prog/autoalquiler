@@ -287,6 +287,13 @@ INSERT INTO mensaje(codigo_mensaje, mensaje) VALUES
     (115, 'La sucursal de retiro no existe'),
     (116, 'La sucursal de devolución no existe'),
     (117, 'El vehículo ya se encuentra reservado en ese período'),
+    (118, 'La fecha de inicio del alquiler es obligatoria'),
+    (119, 'La fecha de fin prevista es obligatoria'),
+    (120, 'La fecha de fin prevista debe ser mayor a la fecha de inicio'),
+    (121, 'El kilometraje inicial es inválido'),
+    (122, 'La reserva no existe'),
+    (123, 'El kilometraje final no puede ser menor al inicial'),
+    (124, 'La reserva no corresponde al cliente o vehículo indicado'),
     (500, 'Error interno del sistema');
 
 

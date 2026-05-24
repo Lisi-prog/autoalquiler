@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\TipoVehiculoController;
 use App\Http\Controllers\Api\SucursalController;
 use App\Http\Controllers\Api\VehiculoController;
 use App\Http\Controllers\Api\ReservaController;
+use App\Http\Controllers\Api\AlquilerController;
 use App\Http\Controllers\Api\AuthController;
 
 Route::get('/test', function () {
@@ -32,6 +33,10 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/reserva', [ReservaController::class, 'store']);
     Route::put('/reserva/{id}', [ReservaController::class, 'update']);
     Route::delete('/reserva/{id}', [ReservaController::class, 'destroy']);
+
+    Route::post('/alquiler', [AlquilerController::class, 'store']);
+    Route::put('/alquiler/{id}', [AlquilerController::class, 'update']);
+    Route::delete('/alquiler/{id}', [AlquilerController::class, 'destroy']);
 });
 
 Route::post('/login', [AuthController::class, 'login']);
