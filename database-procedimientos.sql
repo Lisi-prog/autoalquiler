@@ -330,6 +330,8 @@ CREATE OR REPLACE PROCEDURE sp_alta_vehiculo(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    v_id_vehiculo INT;
 BEGIN
 
     -- Validación patente
@@ -383,7 +385,7 @@ BEGIN
         RETURN;
     END IF;
 
-    -- Insert
+    -- Insert vehículo
     INSERT INTO vehiculo(
         patente,
         marca,
@@ -399,8 +401,21 @@ BEGIN
         TRIM(p_detalle_confort),
         p_id_tipo_vehiculo,
         p_id_sucursal
+    )
+    RETURNING id_vehiculo
+    INTO v_id_vehiculo;
+
+    -- Estado inicial del vehículo
+    INSERT INTO vehiculo_x_estado(
+        id_vehiculo,
+        id_estado_vehiculo
+    )
+    VALUES(
+        v_id_vehiculo,
+        1
     );
 
+    -- Operación exitosa
     p_codigo := 0;
     p_mensaje := fn_obtener_mensaje(p_codigo);
 
@@ -554,9 +569,15 @@ BEGIN
         RETURN;
     END IF;
 
-    -- Delete
-    DELETE FROM vehiculo
-    WHERE id_vehiculo = p_id_vehiculo;
+    -- Baja desde el estado
+    INSERT INTO vehiculo_x_estado(
+        id_vehiculo,
+        id_estado_vehiculo
+    )
+    VALUES(
+        p_id_vehiculo,
+        5
+    );
 
     p_codigo := 0;
     p_mensaje := fn_obtener_mensaje(p_codigo);
@@ -576,3 +597,362 @@ EXCEPTION
 END;
 $$;
 -- --------------------
+
+-- Reserva
+
+CREATE OR REPLACE PROCEDURE sp_alta_reserva(
+    IN p_fecha_inicio TIMESTAMP,
+    IN p_fecha_fin TIMESTAMP,
+    IN p_sucursal_retiro INT,
+    IN p_sucursal_devolucion INT,
+    IN p_id_cliente INT,
+    IN p_id_vehiculo INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_id_reserva INT;
+BEGIN
+
+    -- Validación fecha inicio
+    IF p_fecha_inicio IS NULL THEN
+
+        p_codigo := 110;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación fecha fin
+    IF p_fecha_fin IS NULL THEN
+
+        p_codigo := 111;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación rango fechas
+    IF p_fecha_fin <= p_fecha_inicio THEN
+
+        p_codigo := 112;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación cliente
+    IF NOT EXISTS (
+        SELECT 1
+        FROM cliente
+        WHERE id_cliente = p_id_cliente
+    ) THEN
+
+        p_codigo := 113;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación vehículo
+    IF NOT EXISTS (
+        SELECT 1
+        FROM vehiculo
+        WHERE id_vehiculo = p_id_vehiculo
+    ) THEN
+
+        p_codigo := 114;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación sucursal retiro
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sucursal
+        WHERE id_sucursal = p_sucursal_retiro
+    ) THEN
+
+        p_codigo := 115;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación sucursal devolución
+    IF p_sucursal_devolucion IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM sucursal
+            WHERE id_sucursal = p_sucursal_devolucion
+       ) THEN
+
+        p_codigo := 116;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación disponibilidad vehículo
+    IF NOT fn_vehiculo_disponible(
+        p_id_vehiculo,
+        p_fecha_inicio,
+        p_fecha_fin
+    ) THEN
+
+        p_codigo := 117;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Insert
+    INSERT INTO reserva(
+        fecha_inicio,
+        fecha_fin,
+        sucursal_retiro,
+        sucursal_devolucion,
+        id_cliente,
+        id_vehiculo
+    )
+    VALUES(
+        p_fecha_inicio,
+        p_fecha_fin,
+        p_sucursal_retiro,
+        p_sucursal_devolucion,
+        p_id_cliente,
+        p_id_vehiculo
+    )
+    RETURNING id_reserva
+    INTO v_id_reserva;
+
+    -- Estado inicial de la reserva
+    INSERT INTO reserva_x_estado(
+        id_reserva,
+        id_estado_reserva
+    )
+    VALUES(
+        v_id_reserva,
+        1
+    );
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 104;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_modificar_reserva(
+    IN p_id_reserva INT,
+    IN p_fecha_inicio TIMESTAMP,
+    IN p_fecha_fin TIMESTAMP,
+    IN p_sucursal_retiro INT,
+    IN p_sucursal_devolucion INT,
+    IN p_id_cliente INT,
+    IN p_id_vehiculo INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación existencia reserva
+    IF NOT EXISTS (
+        SELECT 1
+        FROM reserva
+        WHERE id_reserva = p_id_reserva
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación fecha inicio
+    IF p_fecha_inicio IS NULL THEN
+
+        p_codigo := 110;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación fecha fin
+    IF p_fecha_fin IS NULL THEN
+
+        p_codigo := 111;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación rango fechas
+    IF p_fecha_fin <= p_fecha_inicio THEN
+
+        p_codigo := 112;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación cliente
+    IF NOT EXISTS (
+        SELECT 1
+        FROM cliente
+        WHERE id_cliente = p_id_cliente
+    ) THEN
+
+        p_codigo := 113;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación vehículo
+    IF NOT EXISTS (
+        SELECT 1
+        FROM vehiculo
+        WHERE id_vehiculo = p_id_vehiculo
+    ) THEN
+
+        p_codigo := 114;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación sucursal retiro
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sucursal
+        WHERE id_sucursal = p_sucursal_retiro
+    ) THEN
+
+        p_codigo := 115;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación sucursal devolución
+    IF p_sucursal_devolucion IS NOT NULL
+       AND NOT EXISTS (
+            SELECT 1
+            FROM sucursal
+            WHERE id_sucursal = p_sucursal_devolucion
+       ) THEN
+
+        p_codigo := 116;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Validación disponibilidad vehículo
+    IF NOT fn_vehiculo_disponible_modificacion(
+        p_id_reserva,
+        p_id_vehiculo,
+        p_fecha_inicio,
+        p_fecha_fin
+    ) THEN
+
+        p_codigo := 117;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Update
+    UPDATE reserva
+    SET fecha_inicio = p_fecha_inicio,
+        fecha_fin = p_fecha_fin,
+        sucursal_retiro = p_sucursal_retiro,
+        sucursal_devolucion = p_sucursal_devolucion,
+        id_cliente = p_id_cliente,
+        id_vehiculo = p_id_vehiculo
+    WHERE id_reserva = p_id_reserva;
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 104;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_baja_reserva(
+    IN p_id_reserva INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación existencia
+    IF NOT EXISTS (
+        SELECT 1
+        FROM reserva
+        WHERE id_reserva = p_id_reserva
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Baja de un reserva en el estado
+    INSERT INTO reserva_x_estado(
+        id_reserva,
+        id_estado_reserva
+    )
+    VALUES(
+        p_id_reserva,
+        3
+    );
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 103;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TipoVehiculoController;
 use App\Http\Controllers\Api\SucursalController;
 use App\Http\Controllers\Api\VehiculoController;
+use App\Http\Controllers\Api\ReservaController;
 use App\Http\Controllers\Api\AuthController;
 
 Route::get('/test', function () {
@@ -27,6 +28,10 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/vehiculo', [VehiculoController::class, 'store']);
     Route::put('/vehiculo/{id}', [VehiculoController::class, 'update']);
     Route::delete('/vehiculo/{id}', [VehiculoController::class, 'destroy']);
+
+    Route::post('/reserva', [ReservaController::class, 'store']);
+    Route::put('/reserva/{id}', [ReservaController::class, 'update']);
+    Route::delete('/reserva/{id}', [ReservaController::class, 'destroy']);
 });
 
 Route::post('/login', [AuthController::class, 'login']);

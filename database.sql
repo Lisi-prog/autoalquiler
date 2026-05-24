@@ -216,19 +216,24 @@ CREATE TABLE alquiler (
         REFERENCES sucursal(id_sucursal)
 );
 
+CREATE TABLE estado_alquiler (
+    id_estado_alquiler SERIAL PRIMARY KEY,
+    nombre_estado_alquiler VARCHAR(15) UNIQUE
+);
+
 CREATE TABLE alquiler_x_estado (
     id_alquiler INT NOT NULL,
-    id_estado_reserva INT NOT NULL,
+    id_estado_alquiler INT NOT NULL,
     fecha_estado TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_alquiler, id_estado_reserva),
+    PRIMARY KEY (id_alquiler, id_estado_alquiler),
 
     CONSTRAINT fk_axe_x_alquiler
         FOREIGN KEY (id_alquiler)
         REFERENCES alquiler(id_alquiler),
 
     CONSTRAINT fk_axe_x_estado_reserv
-        FOREIGN KEY (id_estado_reserva)
-        REFERENCES estado_reserva(id_estado_reserva)
+        FOREIGN KEY (id_estado_alquiler)
+        REFERENCES estado_alquiler(id_estado_alquiler)
 );
 
 CREATE TABLE factura (
@@ -274,6 +279,14 @@ INSERT INTO mensaje(codigo_mensaje, mensaje) VALUES
     (107, 'El modelo no puede estar vacío'),
     (108, 'El tipo de vehículo no existe'),
     (109, 'La sucursal no existe'),
+    (110, 'La fecha de inicio es obligatoria'),
+    (111, 'La fecha de fin es obligatoria'),
+    (112, 'La fecha de fin debe ser mayor a la fecha de inicio'),
+    (113, 'El cliente no existe'),
+    (114, 'El vehículo no existe'),
+    (115, 'La sucursal de retiro no existe'),
+    (116, 'La sucursal de devolución no existe'),
+    (117, 'El vehículo ya se encuentra reservado en ese período'),
     (500, 'Error interno del sistema');
 
 
@@ -300,4 +313,23 @@ INSERT INTO departamento (nombre_departamento, id_provincia) VALUES
 ('San Pedro', 1),
 ('25 de Mayo', 1);
 
+INSERT INTO estado_vehiculo(id_estado_vehiculo, nombre_estado_vehiculo) VALUES 
+(1, 'EN ESPERA'),
+(2, 'DISPONIBLE')
+(3, 'ALQUILADO')
+(4, 'MANTENIMIENTO')
+(5, 'BAJA');
+
+INSERT INTO estado_reserva VALUES
+(1, 'Pendiente'),
+(2, 'Confirmada'),
+(3, 'Cancelada'),
+(4, 'Finalizada'),
+(5, 'Vencida');
+
+INSERT INTO estado_alquiler VALUES
+(1, 'Activo'),
+(2, 'Finalizado'),
+(3, 'Retrasado'),
+(4, 'Cancelado');
 
