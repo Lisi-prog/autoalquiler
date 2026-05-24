@@ -48,22 +48,18 @@ CREATE TABLE estado_vehiculo (
     nombre_estado_vehiculo VARCHAR(15)
 );
 
-CREATE TABLE vehiculo (
-    id_vehiculo SERIAL PRIMARY KEY,
+CREATE TABLE log_vehiculo (
+    id_log SERIAL PRIMARY KEY,
+    id_vehiculo INT,
     patente VARCHAR(10),
     marca VARCHAR(20),
     modelo VARCHAR(20),
     detalle_confort VARCHAR(500),
     id_tipo_vehiculo INT,
     id_sucursal INT,
-
-    CONSTRAINT fk_vehiculo_x_tipo_vehiculo
-        FOREIGN KEY (id_tipo_vehiculo)
-        REFERENCES tipo_vehiculo(id_tipo_vehiculo),
-
-    CONSTRAINT fk_vehiculo_x_sucursal
-        FOREIGN KEY (id_sucursal)
-        REFERENCES sucursal(id_sucursal)
+    mov varchar(2),
+    fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario int
 );
 
 CREATE TABLE imagen_vehiculo (

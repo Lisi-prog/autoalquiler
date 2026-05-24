@@ -62,7 +62,7 @@ CREATE TABLE estado_vehiculo (
 
 CREATE TABLE vehiculo (
     id_vehiculo SERIAL PRIMARY KEY,
-    patente VARCHAR(10),
+    patente VARCHAR(10) UNIQUE,
     marca VARCHAR(20),
     modelo VARCHAR(20),
     detalle_confort VARCHAR(500),
@@ -269,6 +269,11 @@ INSERT INTO mensaje(codigo_mensaje, mensaje) VALUES
     (102, 'El registro no existe'),
     (103, 'No se puede eliminar porque está siendo utilizado'),
     (104, 'El departamento indicado no existe'),
+    (105, 'La patente no puede estar vacía'),
+    (106, 'La marca no puede estar vacía'),
+    (107, 'El modelo no puede estar vacío'),
+    (108, 'El tipo de vehículo no existe'),
+    (109, 'La sucursal no existe'),
     (500, 'Error interno del sistema');
 
 

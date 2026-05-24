@@ -316,3 +316,263 @@ END;
 $$;
 
 -- --------------------
+
+-- Vehiculo
+CREATE OR REPLACE PROCEDURE sp_alta_vehiculo(
+    IN p_patente VARCHAR,
+    IN p_marca VARCHAR,
+    IN p_modelo VARCHAR,
+    IN p_detalle_confort VARCHAR,
+    IN p_id_tipo_vehiculo INT,
+    IN p_id_sucursal INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación patente
+    IF p_patente IS NULL
+       OR TRIM(p_patente) = '' THEN
+
+        p_codigo := 105;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación marca
+    IF p_marca IS NULL
+       OR TRIM(p_marca) = '' THEN
+
+        p_codigo := 106;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación modelo
+    IF p_modelo IS NULL
+       OR TRIM(p_modelo) = '' THEN
+
+        p_codigo := 107;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación tipo vehículo
+    IF NOT EXISTS (
+        SELECT 1
+        FROM tipo_vehiculo
+        WHERE id_tipo_vehiculo = p_id_tipo_vehiculo
+    ) THEN
+
+        p_codigo := 108;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación sucursal
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sucursal
+        WHERE id_sucursal = p_id_sucursal
+    ) THEN
+
+        p_codigo := 109;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Insert
+    INSERT INTO vehiculo(
+        patente,
+        marca,
+        modelo,
+        detalle_confort,
+        id_tipo_vehiculo,
+        id_sucursal
+    )
+    VALUES(
+        UPPER(TRIM(p_patente)),
+        TRIM(p_marca),
+        TRIM(p_modelo),
+        TRIM(p_detalle_confort),
+        p_id_tipo_vehiculo,
+        p_id_sucursal
+    );
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN unique_violation THEN
+
+        p_codigo := 101;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 104;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_modificar_vehiculo(
+    IN p_id_vehiculo INT,
+    IN p_patente VARCHAR,
+    IN p_marca VARCHAR,
+    IN p_modelo VARCHAR,
+    IN p_detalle_confort VARCHAR,
+    IN p_id_tipo_vehiculo INT,
+    IN p_id_sucursal INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación existencia
+    IF NOT EXISTS (
+        SELECT 1
+        FROM vehiculo
+        WHERE id_vehiculo = p_id_vehiculo
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validaciones
+    IF p_patente IS NULL
+       OR TRIM(p_patente) = '' THEN
+
+        p_codigo := 105;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    IF p_marca IS NULL
+       OR TRIM(p_marca) = '' THEN
+
+        p_codigo := 106;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    IF p_modelo IS NULL
+       OR TRIM(p_modelo) = '' THEN
+
+        p_codigo := 107;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación tipo vehículo
+    IF NOT EXISTS (
+        SELECT 1
+        FROM tipo_vehiculo
+        WHERE id_tipo_vehiculo = p_id_tipo_vehiculo
+    ) THEN
+
+        p_codigo := 108;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación sucursal
+    IF NOT EXISTS (
+        SELECT 1
+        FROM sucursal
+        WHERE id_sucursal = p_id_sucursal
+    ) THEN
+
+        p_codigo := 109;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Update
+    UPDATE vehiculo
+    SET patente = UPPER(TRIM(p_patente)),
+        marca = TRIM(p_marca),
+        modelo = TRIM(p_modelo),
+        detalle_confort = TRIM(p_detalle_confort),
+        id_tipo_vehiculo = p_id_tipo_vehiculo,
+        id_sucursal = p_id_sucursal
+    WHERE id_vehiculo = p_id_vehiculo;
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN unique_violation THEN
+
+        p_codigo := 101;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 104;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_baja_vehiculo(
+    IN p_id_vehiculo INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación existencia
+    IF NOT EXISTS (
+        SELECT 1
+        FROM vehiculo
+        WHERE id_vehiculo = p_id_vehiculo
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Delete
+    DELETE FROM vehiculo
+    WHERE id_vehiculo = p_id_vehiculo;
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 103;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+-- --------------------

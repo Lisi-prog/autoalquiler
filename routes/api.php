@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\TipoVehiculoController;
 use App\Http\Controllers\Api\SucursalController;
+use App\Http\Controllers\Api\VehiculoController;
 use App\Http\Controllers\Api\AuthController;
 
 Route::get('/test', function () {
@@ -22,6 +23,10 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/sucursal', [SucursalController::class, 'store']);
     Route::put('/sucursal/{id}', [SucursalController::class, 'update']);
     Route::delete('/sucursal/{id}', [SucursalController::class, 'destroy']);
+
+    Route::post('/vehiculo', [VehiculoController::class, 'store']);
+    Route::put('/vehiculo/{id}', [VehiculoController::class, 'update']);
+    Route::delete('/vehiculo/{id}', [VehiculoController::class, 'destroy']);
 });
 
 Route::post('/login', [AuthController::class, 'login']);
