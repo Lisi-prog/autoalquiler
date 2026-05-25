@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class ReservaController extends Controller
+class TallerController extends Controller
 {
     function __construct()
     {
@@ -26,12 +26,10 @@ class ReservaController extends Controller
     public function store(Request $request)
     {       
         $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
-            'sucursal_retiro' => 'required|integer',
-            'sucursal_devolucion' => 'nullable|integer',
-            'id_cliente' => 'required|integer',
-            'id_vehiculo' => 'required|integer'
+            'nombre_taller' => 'required|string|max:50',
+            'direccion_taller' => 'nullable|string|max:100',
+            'telefono_taller' => 'nullable|string|max:30',
+            'id_departamento' => 'nullable|integer'
         ]);
 
         DB::statement(
@@ -39,14 +37,12 @@ class ReservaController extends Controller
         );
 
         $resultado = DB::select(
-            "CALL sp_alta_reserva(?, ?, ?, ?, ?, ?, NULL, NULL)",
+            "CALL sp_alta_taller(?, ?, ?, ?, NULL, NULL)",
             [
-                $request->fecha_inicio,
-                $request->fecha_fin,
-                $request->sucursal_retiro,
-                $request->sucursal_devolucion,
-                $request->id_cliente,
-                $request->id_vehiculo
+                $request->nombre_taller,
+                $request->direccion_taller,
+                $request->telefono_taller,
+                $request->id_departamento
             ]
         );
 
@@ -81,12 +77,10 @@ class ReservaController extends Controller
     public function update(Request $request, $id)
     {                        
         $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
-            'sucursal_retiro' => 'required|integer',
-            'sucursal_devolucion' => 'nullable|integer',
-            'id_cliente' => 'required|integer',
-            'id_vehiculo' => 'required|integer'
+            'nombre_taller' => 'required|string|max:50',
+            'direccion_taller' => 'nullable|string|max:100',
+            'telefono_taller' => 'nullable|string|max:30',
+            'id_departamento' => 'nullable|integer'
         ]);
 
         DB::statement(
@@ -94,15 +88,13 @@ class ReservaController extends Controller
         );
 
         $resultado = DB::select(
-            "CALL sp_modificar_reserva(?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
+            "CALL sp_modificar_taller(?, ?, ?, ?, ?, NULL, NULL)",
             [
                 $id,
-                $request->fecha_inicio,
-                $request->fecha_fin,
-                $request->sucursal_retiro,
-                $request->sucursal_devolucion,
-                $request->id_cliente,
-                $request->id_vehiculo
+                $request->nombre_taller,
+                $request->direccion_taller,
+                $request->telefono_taller,
+                $request->id_departamento
             ]
         );
 
@@ -130,9 +122,9 @@ class ReservaController extends Controller
         DB::statement(
             "SET app.usuario = " . (int) auth()->id()
         );
-        
+
         $resultado = DB::select(
-            "CALL sp_baja_reserva(?, NULL, NULL)",
+            "CALL sp_baja_taller(?, NULL, NULL)",
             [$id]
         );
 
@@ -155,40 +147,4 @@ class ReservaController extends Controller
         ], 200);
     }
 
-    public function generarDesdeReserva(Request $request, $id)
-    {
-        DB::statement(
-            "SET app.usuario = " . (int) auth()->id()
-        );
-
-        $request->validate([
-            'km_inicio' => 'required|integer|min:0'
-        ]);
-
-        $resultado = DB::select(
-            "CALL sp_generar_alquiler_desde_reserva(?, ?, NULL, NULL)",
-            [
-                $id,
-                $request->km_inicio
-            ]
-        );
-
-        $codigo = $resultado[0]->p_codigo;
-        $mensaje = $resultado[0]->p_mensaje;
-
-        if ($codigo != 0) {
-
-            return response()->json([
-                'success' => false,
-                'codigo' => $codigo,
-                'mensaje' => $mensaje
-            ], 400);
-        }
-
-        return response()->json([
-            'success' => true,
-            'codigo' => $codigo,
-            'mensaje' => $mensaje
-        ], 201);
-    }
 }

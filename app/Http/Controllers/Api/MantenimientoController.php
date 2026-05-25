@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
-class ReservaController extends Controller
+class MantenimientoController extends Controller
 {
     function __construct()
     {
@@ -26,12 +26,10 @@ class ReservaController extends Controller
     public function store(Request $request)
     {       
         $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
-            'sucursal_retiro' => 'required|integer',
-            'sucursal_devolucion' => 'nullable|integer',
-            'id_cliente' => 'required|integer',
-            'id_vehiculo' => 'required|integer'
+            'fecha_envio' => 'required|date',
+            'fecha_devolucion' => 'nullable|date',
+            'id_vehiculo' => 'required|integer',
+            'id_taller' => 'required|integer'
         ]);
 
         DB::statement(
@@ -39,14 +37,12 @@ class ReservaController extends Controller
         );
 
         $resultado = DB::select(
-            "CALL sp_alta_reserva(?, ?, ?, ?, ?, ?, NULL, NULL)",
+            "CALL sp_alta_mantenimiento(?, ?, ?, ?, NULL, NULL)",
             [
-                $request->fecha_inicio,
-                $request->fecha_fin,
-                $request->sucursal_retiro,
-                $request->sucursal_devolucion,
-                $request->id_cliente,
-                $request->id_vehiculo
+                $request->fecha_envio,
+                $request->fecha_devolucion,
+                $request->id_vehiculo,
+                $request->id_taller
             ]
         );
 
@@ -66,8 +62,7 @@ class ReservaController extends Controller
             'success' => true,
             'codigo' => $codigo,
             'mensaje' => $mensaje
-        ], 201);
-                     
+        ], 201);     
     }
     
     public function show($id)
@@ -79,14 +74,12 @@ class ReservaController extends Controller
     }
     
     public function update(Request $request, $id)
-    {                        
+    {          
         $request->validate([
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date',
-            'sucursal_retiro' => 'required|integer',
-            'sucursal_devolucion' => 'nullable|integer',
-            'id_cliente' => 'required|integer',
-            'id_vehiculo' => 'required|integer'
+            'fecha_envio' => 'required|date',
+            'fecha_devolucion' => 'nullable|date',
+            'id_vehiculo' => 'required|integer',
+            'id_taller' => 'required|integer'
         ]);
 
         DB::statement(
@@ -94,15 +87,13 @@ class ReservaController extends Controller
         );
 
         $resultado = DB::select(
-            "CALL sp_modificar_reserva(?, ?, ?, ?, ?, ?, ?, NULL, NULL)",
+            "CALL sp_modificar_mantenimiento(?, ?, ?, ?, ?, NULL, NULL)",
             [
                 $id,
-                $request->fecha_inicio,
-                $request->fecha_fin,
-                $request->sucursal_retiro,
-                $request->sucursal_devolucion,
-                $request->id_cliente,
-                $request->id_vehiculo
+                $request->fecha_envio,
+                $request->fecha_devolucion,
+                $request->id_vehiculo,
+                $request->id_taller
             ]
         );
 
@@ -130,9 +121,9 @@ class ReservaController extends Controller
         DB::statement(
             "SET app.usuario = " . (int) auth()->id()
         );
-        
+
         $resultado = DB::select(
-            "CALL sp_baja_reserva(?, NULL, NULL)",
+            "CALL sp_baja_mantenimiento(?, NULL, NULL)",
             [$id]
         );
 
@@ -155,21 +146,21 @@ class ReservaController extends Controller
         ], 200);
     }
 
-    public function generarDesdeReserva(Request $request, $id)
+    public function finalizar(Request $request, $id)
     {
         DB::statement(
             "SET app.usuario = " . (int) auth()->id()
         );
 
         $request->validate([
-            'km_inicio' => 'required|integer|min:0'
+            'fecha_devolucion' => 'required|date'
         ]);
 
         $resultado = DB::select(
-            "CALL sp_generar_alquiler_desde_reserva(?, ?, NULL, NULL)",
+            "CALL sp_finalizar_mantenimiento(?, ?, NULL, NULL)",
             [
                 $id,
-                $request->km_inicio
+                $request->fecha_devolucion
             ]
         );
 
@@ -189,6 +180,6 @@ class ReservaController extends Controller
             'success' => true,
             'codigo' => $codigo,
             'mensaje' => $mensaje
-        ], 201);
+        ], 200);
     }
 }

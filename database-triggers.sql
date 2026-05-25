@@ -1499,3 +1499,458 @@ AFTER INSERT OR UPDATE OR DELETE
 ON factura
 FOR EACH ROW
 EXECUTE FUNCTION fn_log_factura();
+
+-- Taller
+-- Función trigger
+CREATE OR REPLACE FUNCTION fn_log_taller()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_usuario_app INT;
+    v_usuario_db VARCHAR(50);
+    v_id_log INT;
+BEGIN
+
+    -- Usuario PostgreSQL
+    v_usuario_db := current_user;
+
+    -- Usuario Laravel
+    BEGIN
+        v_usuario_app := current_setting('app.usuario', true)::INT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            v_usuario_app := NULL;
+    END;
+
+    -- ID log
+    v_id_log := nextval('seq_log_taller');
+
+    -- INSERT
+    IF TG_OP = 'INSERT' THEN
+
+        INSERT INTO log_taller(
+            id_log,
+            id_taller,
+            nombre_taller,
+            direccion_taller,
+            telefono_taller,
+            id_departamento,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            NEW.id_taller,
+            NEW.nombre_taller,
+            NEW.direccion_taller,
+            NEW.telefono_taller,
+            NEW.id_departamento,
+            'I',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN NEW;
+
+    -- UPDATE
+    ELSIF TG_OP = 'UPDATE' THEN
+
+        -- Antes update
+        INSERT INTO log_taller(
+            id_log,
+            id_taller,
+            nombre_taller,
+            direccion_taller,
+            telefono_taller,
+            id_departamento,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            OLD.id_taller,
+            OLD.nombre_taller,
+            OLD.direccion_taller,
+            OLD.telefono_taller,
+            OLD.id_departamento,
+            'AU',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        -- Nuevo ID log
+        v_id_log := nextval('seq_log_taller');
+
+        -- Después update
+        INSERT INTO log_taller(
+            id_log,
+            id_taller,
+            nombre_taller,
+            direccion_taller,
+            telefono_taller,
+            id_departamento,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            NEW.id_taller,
+            NEW.nombre_taller,
+            NEW.direccion_taller,
+            NEW.telefono_taller,
+            NEW.id_departamento,
+            'DU',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN NEW;
+
+    -- DELETE
+    ELSIF TG_OP = 'DELETE' THEN
+
+        INSERT INTO log_taller(
+            id_log,
+            id_taller,
+            nombre_taller,
+            direccion_taller,
+            telefono_taller,
+            id_departamento,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            OLD.id_taller,
+            OLD.nombre_taller,
+            OLD.direccion_taller,
+            OLD.telefono_taller,
+            OLD.id_departamento,
+            'D',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN OLD;
+
+    END IF;
+
+    RETURN NULL;
+
+END;
+$$;
+
+CREATE TRIGGER trg_log_taller
+AFTER INSERT OR UPDATE OR DELETE
+ON taller
+FOR EACH ROW
+EXECUTE FUNCTION fn_log_taller();
+
+-- -------------------------------------
+-- Mantenimiento
+-- Función trigger
+CREATE OR REPLACE FUNCTION fn_log_mantenimiento()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_usuario_app INT;
+    v_usuario_db VARCHAR(50);
+    v_id_log INT;
+BEGIN
+
+    -- Usuario PostgreSQL
+    v_usuario_db := current_user;
+
+    -- Usuario Laravel
+    BEGIN
+        v_usuario_app := current_setting('app.usuario', true)::INT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            v_usuario_app := NULL;
+    END;
+
+    -- ID log
+    v_id_log := nextval('seq_log_mantenimiento');
+
+    -- INSERT
+    IF TG_OP = 'INSERT' THEN
+
+        INSERT INTO log_mantenimiento(
+            id_log,
+            id_mantenimiento,
+            fecha_envio,
+            fecha_devolucion,
+            id_vehiculo,
+            id_taller,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            NEW.id_mantenimiento,
+            NEW.fecha_envio,
+            NEW.fecha_devolucion,
+            NEW.id_vehiculo,
+            NEW.id_taller,
+            'I',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN NEW;
+
+    -- UPDATE
+    ELSIF TG_OP = 'UPDATE' THEN
+
+        -- Antes update
+        INSERT INTO log_mantenimiento(
+            id_log,
+            id_mantenimiento,
+            fecha_envio,
+            fecha_devolucion,
+            id_vehiculo,
+            id_taller,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            OLD.id_mantenimiento,
+            OLD.fecha_envio,
+            OLD.fecha_devolucion,
+            OLD.id_vehiculo,
+            OLD.id_taller,
+            'AU',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        -- Nuevo ID log
+        v_id_log := nextval('seq_log_mantenimiento');
+
+        -- Después update
+        INSERT INTO log_mantenimiento(
+            id_log,
+            id_mantenimiento,
+            fecha_envio,
+            fecha_devolucion,
+            id_vehiculo,
+            id_taller,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            NEW.id_mantenimiento,
+            NEW.fecha_envio,
+            NEW.fecha_devolucion,
+            NEW.id_vehiculo,
+            NEW.id_taller,
+            'DU',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN NEW;
+
+    -- DELETE
+    ELSIF TG_OP = 'DELETE' THEN
+
+        INSERT INTO log_mantenimiento(
+            id_log,
+            id_mantenimiento,
+            fecha_envio,
+            fecha_devolucion,
+            id_vehiculo,
+            id_taller,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            OLD.id_mantenimiento,
+            OLD.fecha_envio,
+            OLD.fecha_devolucion,
+            OLD.id_vehiculo,
+            OLD.id_taller,
+            'D',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN OLD;
+
+    END IF;
+
+    RETURN NULL;
+
+END;
+$$;
+
+-- Trigger
+CREATE TRIGGER trg_log_mantenimiento
+AFTER INSERT OR UPDATE OR DELETE
+ON mantenimiento
+FOR EACH ROW
+EXECUTE FUNCTION fn_log_mantenimiento();
+
+-- -------------------------------------
+-- tarifa
+CREATE OR REPLACE FUNCTION fn_log_tarifa()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_usuario_app INT;
+    v_usuario_db VARCHAR(50);
+    v_id_log INT;
+BEGIN
+
+    -- Usuario PostgreSQL
+    v_usuario_db := current_user;
+
+    -- Usuario Laravel
+    BEGIN
+        v_usuario_app := current_setting('app.usuario', true)::INT;
+    EXCEPTION
+        WHEN OTHERS THEN
+            v_usuario_app := NULL;
+    END;
+
+    -- ID log
+    v_id_log := nextval('seq_log_tarifa');
+
+    -- INSERT
+    IF TG_OP = 'INSERT' THEN
+
+        INSERT INTO log_tarifa(
+            id_log,
+            id_tarifa,
+            precio_dia,
+            porcentaje_recargo_hora,
+            id_sucursal,
+            id_tipo_vehiculo,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            NEW.id_tarifa,
+            NEW.precio_dia,
+            NEW.porcentaje_recargo_hora,
+            NEW.id_sucursal,
+            NEW.id_tipo_vehiculo,
+            'I',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN NEW;
+
+    -- UPDATE
+    ELSIF TG_OP = 'UPDATE' THEN
+
+        -- Antes update
+        INSERT INTO log_tarifa(
+            id_log,
+            id_tarifa,
+            precio_dia,
+            porcentaje_recargo_hora,
+            id_sucursal,
+            id_tipo_vehiculo,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            OLD.id_tarifa,
+            OLD.precio_dia,
+            OLD.porcentaje_recargo_hora,
+            OLD.id_sucursal,
+            OLD.id_tipo_vehiculo,
+            'AU',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        -- Nuevo ID log
+        v_id_log := nextval('seq_log_tarifa');
+
+        -- Después update
+        INSERT INTO log_tarifa(
+            id_log,
+            id_tarifa,
+            precio_dia,
+            porcentaje_recargo_hora,
+            id_sucursal,
+            id_tipo_vehiculo,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            NEW.id_tarifa,
+            NEW.precio_dia,
+            NEW.porcentaje_recargo_hora,
+            NEW.id_sucursal,
+            NEW.id_tipo_vehiculo,
+            'DU',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN NEW;
+
+    -- DELETE
+    ELSIF TG_OP = 'DELETE' THEN
+
+        INSERT INTO log_tarifa(
+            id_log,
+            id_tarifa,
+            precio_dia,
+            porcentaje_recargo_hora,
+            id_sucursal,
+            id_tipo_vehiculo,
+            mov,
+            usuario,
+            usuario_db
+        )
+        VALUES(
+            v_id_log,
+            OLD.id_tarifa,
+            OLD.precio_dia,
+            OLD.porcentaje_recargo_hora,
+            OLD.id_sucursal,
+            OLD.id_tipo_vehiculo,
+            'D',
+            v_usuario_app,
+            v_usuario_db
+        );
+
+        RETURN OLD;
+
+    END IF;
+
+    RETURN NULL;
+
+END;
+$$;
+
+CREATE TRIGGER trg_log_tarifa
+AFTER INSERT OR UPDATE OR DELETE
+ON tarifa
+FOR EACH ROW
+EXECUTE FUNCTION fn_log_tarifa();

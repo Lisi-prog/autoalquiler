@@ -50,7 +50,7 @@ CREATE TABLE log_vehiculo (
 );
 
 CREATE TABLE log_mantenimiento (
-    id_log SERIAL PRIMARY KEY
+    id_log SERIAL PRIMARY KEY,
     id_mantenimiento INT,
     fecha_envio DATE,
     fecha_devolucion DATE,

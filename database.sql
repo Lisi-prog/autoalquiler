@@ -294,6 +294,21 @@ INSERT INTO mensaje(codigo_mensaje, mensaje) VALUES
     (122, 'La reserva no existe'),
     (123, 'El kilometraje final no puede ser menor al inicial'),
     (124, 'La reserva no corresponde al cliente o vehículo indicado'),
+    (125, 'El nombre del taller no puede estar vacío'),
+    (126, 'El departamento no existe'),
+    (127, 'La fecha de envío es obligatoria'),
+    (128, 'La fecha de devolución no puede ser menor a la fecha de envío'),
+    (129, 'El taller no existe'),
+    (130, 'El vehículo no se encuentra disponible'),
+    (131, 'El precio por día debe ser mayor a cero'),
+    (132, 'El porcentaje de recargo por hora no puede ser negativo'),
+    (133, 'La fecha de devolución es obligatoria'),
+    (134, 'El mantenimiento ya fue finalizado'),
+    (135, 'La fecha de finalización es obligatoria'),
+    (136, 'El kilometraje final no puede ser menor al inicial'),
+    (137, 'El alquiler no se encuentra activo'),
+    (138, 'No existe una tarifa para el vehículo y sucursal'),
+    (139, 'La reserva no puede convertirse en alquiler'),
     (500, 'Error interno del sistema');
 
 

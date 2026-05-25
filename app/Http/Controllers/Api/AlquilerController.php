@@ -165,4 +165,44 @@ class AlquilerController extends Controller
         ], 200);
     }
 
+    public function finalizar(Request $request, $id)
+    {
+        DB::statement(
+            "SET app.usuario = " . (int) auth()->id()
+        );
+
+        $request->validate([
+            'fecha_fin_real' => 'required|date',
+            'km_fin' => 'required|integer|min:0',
+            'sucursal_devolucion' => 'required|integer'
+        ]);
+
+        $resultado = DB::select(
+            "CALL sp_finalizar_alquiler(?, ?, ?, ?, NULL, NULL)",
+            [
+                $id,
+                $request->fecha_fin_real,
+                $request->km_fin,
+                $request->sucursal_devolucion
+            ]
+        );
+
+        $codigo = $resultado[0]->p_codigo;
+        $mensaje = $resultado[0]->p_mensaje;
+
+        if ($codigo != 0) {
+
+            return response()->json([
+                'success' => false,
+                'codigo' => $codigo,
+                'mensaje' => $mensaje
+            ], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'codigo' => $codigo,
+            'mensaje' => $mensaje
+        ], 200);
+    }
 }

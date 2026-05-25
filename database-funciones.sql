@@ -24,7 +24,8 @@ $$;
 CREATE OR REPLACE FUNCTION fn_vehiculo_disponible(
     p_id_vehiculo INT,
     p_fecha_inicio TIMESTAMP,
-    p_fecha_fin TIMESTAMP
+    p_fecha_fin TIMESTAMP,
+    p_id_reserva_excluir INT DEFAULT NULL
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -50,16 +51,20 @@ BEGIN
     ORDER BY fecha_estado DESC
     LIMIT 1;
 
-    -- Debe estar disponible
-    IF v_estado_actual IS DISTINCT FROM 2 THEN
+    -- Disponible o reservado
+    IF v_estado_actual NOT IN (1,2) THEN
         RETURN FALSE;
     END IF;
 
-    -- Validar reservas superpuestas
+    -- Reservas superpuestas
     IF EXISTS (
         SELECT 1
         FROM reserva
         WHERE id_vehiculo = p_id_vehiculo
+        AND (
+            p_id_reserva_excluir IS NULL
+            OR id_reserva <> p_id_reserva_excluir
+        )
         AND (
             p_fecha_inicio BETWEEN fecha_inicio AND fecha_fin
             OR p_fecha_fin BETWEEN fecha_inicio AND fecha_fin
@@ -72,7 +77,7 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Validar alquileres superpuestos
+    -- Alquileres superpuestos
     IF EXISTS (
         SELECT 1
         FROM alquiler

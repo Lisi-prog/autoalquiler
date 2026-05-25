@@ -38,6 +38,18 @@ CREATE SEQUENCE seq_log_factura
 START 1
 INCREMENT 1;
 
+CREATE SEQUENCE seq_log_taller
+START 1
+INCREMENT 1;
+
+CREATE SEQUENCE seq_log_mantenimiento
+START 1
+INCREMENT 1;
+
+CREATE SEQUENCE seq_log_tarifa
+START 1
+INCREMENT 1;
+
 ALTER TABLE tipo_vehiculo
 ADD CONSTRAINT uq_tipo_vehiculo
 UNIQUE(nombre_tipo_vehiculo);
