@@ -18,6 +18,26 @@ CREATE SEQUENCE seq_log_alquiler
 START 1
 INCREMENT 1;
 
+CREATE SEQUENCE seq_log_alquiler_x_estado
+START 1
+INCREMENT 1;
+
+CREATE SEQUENCE seq_log_reserva_x_estado
+START 1
+INCREMENT 1;
+
+CREATE SEQUENCE seq_log_vehiculo_x_estado
+START 1
+INCREMENT 1;
+
+CREATE SEQUENCE seq_log_detalle_factura
+START 1
+INCREMENT 1;
+
+CREATE SEQUENCE seq_log_factura
+START 1
+INCREMENT 1;
+
 ALTER TABLE tipo_vehiculo
 ADD CONSTRAINT uq_tipo_vehiculo
 UNIQUE(nombre_tipo_vehiculo);

@@ -125,12 +125,46 @@ CREATE TABLE log_factura (
 
 CREATE TABLE log_detalle_factura (
     id_log SERIAL PRIMARY KEY,
-    id_detalle_factura INT
+    id_detalle_factura INT,
     codigo INT,
     descripcion VARCHAR(100),
     precio_unitario NUMERIC(10,2),
     subtotal NUMERIC(10,2),
     id_factura INT,
+    mov varchar(2),
+    fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario int,
+    usuario_db VARCHAR(50)
+);
+
+CREATE TABLE log_alquiler_x_estado (
+    id_log INT,
+    id_alquiler INT NOT NULL,
+    id_estado_alquiler INT NOT NULL,
+    fecha_estado TIMESTAMP NOT NULL,
+    mov varchar(2),
+    fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario int,
+    usuario_db VARCHAR(50)
+);
+
+CREATE TABLE log_reserva_x_estado (
+    id_log SERIAL PRIMARY KEY,
+    id_reserva INT,
+    id_estado_reserva INT,
+    fecha_estado TIMESTAMP NOT NULL,
+    mov varchar(2),
+    fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario int,
+    usuario_db VARCHAR(50)
+);
+
+CREATE TABLE log_vehiculo_x_estado (
+    id_log SERIAL PRIMARY KEY,
+    id_veh_x_est INT,
+    id_vehiculo INT NOT NULL,
+    id_estado_vehiculo INT NOT NULL,
+    fecha_estado TIMESTAMP,
     mov varchar(2),
     fecha_mov TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     usuario int,

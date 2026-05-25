@@ -972,6 +972,8 @@ CREATE OR REPLACE PROCEDURE sp_alta_alquiler(
 )
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    v_id_alquiler INT;
 BEGIN
 
     -- Validación fecha inicio
@@ -1111,19 +1113,31 @@ BEGIN
         p_id_reserva,
         p_id_cliente,
         p_id_vehiculo
+    )
+    RETURNING id_alquiler
+    INTO v_id_alquiler;
+
+    --Insert estado
+    INSERT INTO alquiler_x_estado(
+        id_alquiler,
+        id_estado_alquiler
+    )
+    VALUES(
+        v_id_alquiler,
+        1
     );
 
     -- Cambiar estado vehículo
-    INSERT INTO vehiculo_x_estado(
-        id_vehiculo,
-        id_estado_vehiculo,
-        fecha_estado
-    )
-    VALUES(
-        p_id_vehiculo,
-        3,
-        CURRENT_TIMESTAMP
-    );
+    -- INSERT INTO vehiculo_x_estado(
+    --     id_vehiculo,
+    --     id_estado_vehiculo,
+    --     fecha_estado
+    -- )
+    -- VALUES(
+    --     p_id_vehiculo,
+    --     3,
+    --     CURRENT_TIMESTAMP
+    -- );
 
     p_codigo := 0;
     p_mensaje := fn_obtener_mensaje(p_codigo);
