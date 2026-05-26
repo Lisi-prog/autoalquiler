@@ -2089,6 +2089,50 @@ EXCEPTION
 END;
 $$;
 
+CREATE OR REPLACE PROCEDURE sp_baja_tarifa(
+    IN p_id_tarifa INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación existencia
+    IF NOT EXISTS (
+        SELECT 1
+        FROM tarifa
+        WHERE id_tarifa = p_id_tarifa
+    ) THEN
+
+        p_codigo := 102;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+
+    END IF;
+
+    -- Delete
+    DELETE FROM tarifa
+    WHERE id_tarifa = p_id_tarifa;
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 103;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
 -- Finalizar Alquiler
 CREATE OR REPLACE PROCEDURE sp_finalizar_alquiler(
     IN p_id_alquiler INT,

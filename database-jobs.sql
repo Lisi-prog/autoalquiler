@@ -1,20 +1,36 @@
-CREATE OR REPLACE PROCEDURE sp_verificar_alquileres_vencidos()
+CREATE OR REPLACE FUNCTION fn_alquileres_vencidos()
+RETURNS TABLE (
+    id_alquiler INT,
+    id_vehiculo INT,
+    patente VARCHAR,
+    fecha_fin_prevista TIMESTAMP,
+    horas_atraso NUMERIC
+)
 LANGUAGE plpgsql
 AS $$
 BEGIN
 
-    INSERT INTO alquiler_x_estado(
-        id_alquiler,
-        id_estado_alquiler,
-        fecha_estado
-    )
+    RETURN QUERY
     SELECT
         a.id_alquiler,
-        3,
-        CURRENT_TIMESTAMP
+        v.id_vehiculo,
+        v.patente,
+        a.fecha_fin_prevista,
+
+        ROUND(
+            EXTRACT(EPOCH FROM (
+                CURRENT_TIMESTAMP - a.fecha_fin_prevista
+            )) / 3600,
+            2
+        ) AS horas_atraso
+
     FROM alquiler a
+    INNER JOIN vehiculo v
+        ON v.id_vehiculo = a.id_vehiculo
+
     WHERE a.fecha_fin_prevista < CURRENT_TIMESTAMP
     AND a.fecha_fin_real IS NULL
+
     AND (
         SELECT axe.id_estado_alquiler
         FROM alquiler_x_estado axe
