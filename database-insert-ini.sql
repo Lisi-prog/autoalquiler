@@ -67,8 +67,8 @@ INSERT INTO departamento (nombre_departamento, id_provincia) VALUES
 
 INSERT INTO estado_vehiculo(id_estado_vehiculo, nombre_estado_vehiculo) VALUES 
 (1, 'EN ESPERA'),
-(2, 'DISPONIBLE')
-(3, 'ALQUILADO')
+(2, 'DISPONIBLE'),
+(3, 'ALQUILADO'),
 (4, 'MANTENIMIENTO')
 (5, 'BAJA');
 
