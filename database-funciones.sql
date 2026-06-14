@@ -173,3 +173,44 @@ BEGIN
 
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION fn_calcular_monto_tarifa(
+    p_fecha_inicio TIMESTAMP,
+    p_fecha_fin TIMESTAMP,
+    p_id_tipo_vehiculo INT,
+    p_id_sucursal INT
+)
+RETURNS NUMERIC(10,2)
+LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    v_precio_dia NUMERIC(10,2);
+    v_cantidad_dias INTEGER;
+BEGIN
+    IF p_fecha_fin < p_fecha_inicio THEN
+        RAISE EXCEPTION 'La fecha de fin no puede ser menor a la fecha de inicio';
+    END IF;
+
+    SELECT
+        precio_dia
+    INTO
+        v_precio_dia
+    FROM tarifa
+    WHERE id_tipo_vehiculo = p_id_tipo_vehiculo
+    AND id_sucursal = p_id_sucursal
+    LIMIT 1;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION
+            'No existe tarifa para el tipo de vehículo % en la sucursal %',
+            p_id_tipo_vehiculo,
+            p_id_sucursal;
+    END IF;
+
+    -- Incluye el día de inicio
+    v_cantidad_dias := (p_fecha_fin::date - p_fecha_inicio::date) + 1;
+
+    RETURN v_cantidad_dias * v_precio_dia;
+END;
+$$;

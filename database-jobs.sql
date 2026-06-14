@@ -1,43 +1,140 @@
-CREATE OR REPLACE FUNCTION fn_alquileres_vencidos()
-RETURNS TABLE (
-    id_alquiler INT,
-    id_vehiculo INT,
-    patente VARCHAR,
-    fecha_fin_prevista TIMESTAMP,
-    horas_atraso NUMERIC
-)
+-- Jobs 1: Generación masiva de facturas: Recorrer todos los alquileres finalizados que aún no poseen factura.
+CREATE OR REPLACE PROCEDURE jb_generar_facturas_masivas()
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    reg RECORD;
+    v_contador INT := 0;
+
+    cur CURSOR FOR
+        SELECT *
+        FROM alquiler
+        WHERE fecha_fin_real IS NOT NULL
+          AND id_alquiler NOT IN (
+                SELECT id_alquiler
+                FROM factura
+          );
 BEGIN
 
-    RETURN QUERY
-    SELECT
-        a.id_alquiler,
-        v.id_vehiculo,
-        v.patente,
-        a.fecha_fin_prevista,
+    OPEN cur;
 
-        ROUND(
-            EXTRACT(EPOCH FROM (
-                CURRENT_TIMESTAMP - a.fecha_fin_prevista
-            )) / 3600,
-            2
-        ) AS horas_atraso
+    LOOP
 
-    FROM alquiler a
-    INNER JOIN vehiculo v
-        ON v.id_vehiculo = a.id_vehiculo
+        FETCH cur INTO reg;
+        EXIT WHEN NOT FOUND;
 
-    WHERE a.fecha_fin_prevista < CURRENT_TIMESTAMP
-    AND a.fecha_fin_real IS NULL
+        BEGIN
 
-    AND (
-        SELECT axe.id_estado_alquiler
-        FROM alquiler_x_estado axe
-        WHERE axe.id_alquiler = a.id_alquiler
-        ORDER BY axe.fecha_estado DESC
-        LIMIT 1
-    ) = 1;
+            INSERT INTO factura(
+                fecha_emision,
+                monto_base,
+                monto_recargo,
+                total,
+                id_alquiler
+            )
+            VALUES(
+                CURRENT_TIMESTAMP,
+                1000,
+                0,
+                1000,
+                reg.id_alquiler
+            );
+
+            v_contador := v_contador + 1;
+
+            -- Punto de control cada 20 operaciones
+            IF v_contador % 20 = 0 THEN
+                COMMIT;
+                RAISE NOTICE 'Checkpoint: % facturas procesadas',
+                    v_contador;
+            END IF;
+
+        EXCEPTION
+            WHEN OTHERS THEN
+
+                RAISE NOTICE
+                    'Error en alquiler %',
+                    reg.id_alquiler;
+
+        END;
+
+    END LOOP;
+
+    CLOSE cur;
+
+    -- Guardar las últimas pendientes
+    COMMIT;
 
 END;
 $$;
+-- -------------------------------
+
+-- Jobs 2: Actualización masiva de estados de reservas vencidas: Una reserva ya pasó su fecha de inicio y/o nunca se convirtió en alquiler, entonces se marca automáticamente como vencida.
+CREATE OR REPLACE PROCEDURE jb_cancelar_reservas_vencidas()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+
+    reg RECORD;
+    v_contador INT := 0;
+
+    cur CURSOR FOR
+        SELECT r.id_reserva
+        FROM reserva r
+        WHERE r.fecha_inicio < CURRENT_TIMESTAMP;
+
+BEGIN
+
+    OPEN cur;
+
+    LOOP
+
+        FETCH cur INTO reg;
+
+        EXIT WHEN NOT FOUND;
+
+        BEGIN
+
+            INSERT INTO reserva_x_estado(
+                id_reserva,
+                id_estado_reserva,
+                fecha_estado
+            )
+            VALUES(
+                reg.id_reserva,
+                3,
+                CURRENT_TIMESTAMP
+            );
+
+            v_contador := v_contador + 1;
+
+            -- Punto de control cada 20 registros
+            IF v_contador % 20 = 0 THEN
+
+                COMMIT;
+
+                RAISE NOTICE
+                    'Checkpoint alcanzado: % reservas procesadas',
+                    v_contador;
+
+            END IF;
+
+        EXCEPTION
+            WHEN OTHERS THEN
+
+                RAISE NOTICE
+                    'Error en reserva %',
+                    reg.id_reserva;
+
+        END;
+
+    END LOOP;
+
+    CLOSE cur;
+
+    -- Confirmar las últimas pendientes
+    COMMIT;
+
+END;
+$$;
+-- -------------------------------
