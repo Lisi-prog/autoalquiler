@@ -19,6 +19,9 @@
     <!-- Custom styles for this template-->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
 
+    <link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('vendor/datatables/dataTables.bootstrap4.css')}}">
+
 </head>
 <style>
     #loading {
@@ -103,6 +106,11 @@
     <!-- Custom scripts for all pages-->
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
 
+    <script src="{{ asset('vendor/datatables/jquery.dataTables.js') }}"></script>
+    <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
+
+    <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.js') }}"></script>
+    <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
     <!-- Page level plugins -->
     {{-- <script src="vendor/chart.js/Chart.min.js"></script> --}}
 

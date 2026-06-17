@@ -325,6 +325,7 @@ CREATE OR REPLACE PROCEDURE sp_alta_vehiculo(
     IN p_detalle_confort VARCHAR,
     IN p_id_tipo_vehiculo INT,
     IN p_id_sucursal INT,
+    OUT p_id_vehiculo INT,
     OUT p_codigo INT,
     OUT p_mensaje VARCHAR
 )
@@ -416,6 +417,7 @@ BEGIN
     );
 
     -- Operación exitosa
+    p_id_vehiculo := v_id_vehiculo;
     p_codigo := 0;
     p_mensaje := fn_obtener_mensaje(p_codigo);
 
@@ -425,6 +427,76 @@ EXCEPTION
 
         p_codigo := 101;
         p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN foreign_key_violation THEN
+
+        p_codigo := 104;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+    WHEN OTHERS THEN
+
+        p_codigo := 500;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE sp_alta_imagen_vehiculo(
+    IN p_ruta_imagen VARCHAR,
+    IN p_nombre_imagen VARCHAR,
+    IN p_id_vehiculo INT,
+    OUT p_codigo INT,
+    OUT p_mensaje VARCHAR
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+    -- Validación ruta
+    IF p_ruta_imagen IS NULL
+       OR TRIM(p_ruta_imagen) = '' THEN
+
+        p_codigo := 110;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación nombre
+    IF p_nombre_imagen IS NULL
+       OR TRIM(p_nombre_imagen) = '' THEN
+
+        p_codigo := 111;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    -- Validación vehículo
+    IF NOT EXISTS (
+        SELECT 1
+        FROM vehiculo
+        WHERE id_vehiculo = p_id_vehiculo
+    ) THEN
+
+        p_codigo := 112;
+        p_mensaje := fn_obtener_mensaje(p_codigo);
+        RETURN;
+    END IF;
+
+    INSERT INTO imagen_vehiculo(
+        ruta_imagen,
+        nombre_imagen,
+        id_vehiculo
+    )
+    VALUES(
+        TRIM(p_ruta_imagen),
+        TRIM(p_nombre_imagen),
+        p_id_vehiculo
+    );
+
+    p_codigo := 0;
+    p_mensaje := fn_obtener_mensaje(p_codigo);
+
+EXCEPTION
 
     WHEN foreign_key_violation THEN
 

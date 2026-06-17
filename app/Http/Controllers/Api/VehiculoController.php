@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+use App\Models\Sucursal;
+use App\Models\Vehiculo;
+use App\Models\Imagen_vehiculo;
+use App\Models\Tipo_vehiculo;
+
 class VehiculoController extends Controller
 {
     function __construct()
@@ -16,11 +21,16 @@ class VehiculoController extends Controller
     }
     
     public function index(Request $request)
-    {        
+    {      
+        $vehiculos = Vehiculo::orderBy('marca')->orderBy('modelo')->get();
+        return view('vehiculo.index', compact('vehiculos'));    
     }
 
     public function create()
     {
+        $tipos = Tipo_vehiculo::orderBy('nombre_tipo_vehiculo')->get();
+        $sucursales = Sucursal::orderBy('nombre_sucursal')->get();
+        return view('vehiculo.create', compact('tipos', 'sucursales'));
     }
 
     public function store(Request $request)
@@ -31,7 +41,9 @@ class VehiculoController extends Controller
             'modelo' => 'required|string|max:20',
             'detalle_confort' => 'nullable|string|max:500',
             'id_tipo_vehiculo' => 'required|integer',
-            'id_sucursal' => 'required|integer'
+            'id_sucursal' => 'required|integer',
+            'imagenes' => 'nullable|array|max:5',
+            'imagenes.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048'
         ]);
 
         DB::statement(
@@ -39,7 +51,7 @@ class VehiculoController extends Controller
         );
 
         $resultado = DB::select(
-            "CALL sp_alta_vehiculo(?, ?, ?, ?, ?, ?, NULL, NULL)",
+            "CALL sp_alta_vehiculo(?, ?, ?, ?, ?, ?, NULL, NULL, NULL)",
             [
                 $request->patente,
                 $request->marca,
@@ -50,6 +62,7 @@ class VehiculoController extends Controller
             ]
         );
 
+        $idVehiculo = $resultado[0]->p_id_vehiculo;
         $codigo = $resultado[0]->p_codigo;
         $mensaje = $resultado[0]->p_mensaje;
 
@@ -60,6 +73,41 @@ class VehiculoController extends Controller
                 'codigo' => $codigo,
                 'mensaje' => $mensaje
             ], 400);
+        }
+
+        // Eliminar espacios y convertir a mayúsculas
+        $patente = strtoupper(
+            preg_replace('/\s+/', '', $request->patente)
+        );
+
+        $contador = 1;
+
+        foreach ($request->file('imagenes', []) as $imagen) {
+
+            $extension = strtolower(
+                $imagen->getClientOriginalExtension()
+            );
+
+            $nombre = $patente . '_' .
+                    str_pad($contador, 3, '0', STR_PAD_LEFT) .
+                    '.' .
+                    $extension;
+
+            $imagen->move(
+                public_path('img/vehiculo'),
+                $nombre
+            );
+
+            DB::select(
+                "CALL sp_alta_imagen_vehiculo(?, ?, ?, NULL, NULL)",
+                [
+                    '/img/vehiculo/' . $nombre,
+                    $nombre,
+                    $idVehiculo
+                ]
+            );
+
+            $contador++;
         }
 
         return response()->json([

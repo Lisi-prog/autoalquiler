@@ -84,12 +84,21 @@ $(document).ready(function () {
                                                         </div>
                                                     </div>
 
+                                                    <div class="row mt-3">
+                                                        <div class="col-6">
+                                                            <p class="mb-1">
+                                                                <i class="fas fa-lightbulb"></i>
+                                                                ${e.tipo}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
                                                     <hr>
 
                                                     <div>
                                                         <strong>Sucursal</strong>
                                                         <span class="ml-3">
-                                                            Aeropuerto De Posadas, Misiones
+                                                            ${e.sucursal}, ${e.departamento_sucursal}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -121,7 +130,7 @@ $(document).ready(function () {
                                                     </h1>
 
                                                     <button class="btn btn-lg btn-primary btn-block mt-3">
-                                                        Ver auto
+                                                        Reservar
                                                     </button>
                                                 </div>
 

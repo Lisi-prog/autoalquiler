@@ -24,43 +24,81 @@
 
     <!-- Heading -->
     {{-- <div class="sidebar-heading">
-        Interface
+        Gerente
     </div> --}}
 
     <!-- Nav Item - Pages Collapse Menu -->
-    {{-- <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="{{route('sucursal.index')}}"
             aria-expanded="true" aria-controls="collapseTwo">
-            <i class="fas fa-fw fa-cog"></i>
-            <span>Components</span>
+            <i class="fas fa-store"></i>
+            <span>Sucursal</span>
         </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Components:</h6>
-                <a class="collapse-item" href="buttons.html">Buttons</a>
-                <a class="collapse-item" href="cards.html">Cards</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="{{route('vehiculo.index')}}"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-car-side"></i>
+            <span>Vehiculo</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-clipboard-list"></i>
+            <span>Reserva</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Alquileres</span>
+        </a>
+    </li>
+    
+    
+    {{-- <div class="btn-group dropright">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                Dropright
+            </button>
+            <div class="dropdown-menu">
+                <button class="dropdown-item" type="button">Action</button>
+                <button class="dropdown-item" type="button">Another action</button>
+                <button class="dropdown-item" type="button">Something else here</button>
             </div>
-        </div>
-    </li> --}}
+    </div> --}}
 
     <!-- Nav Item - Utilities Collapse Menu -->
-    {{-- <li class="nav-item">
+    <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
             aria-expanded="true" aria-controls="collapseUtilities">
-            <i class="fas fa-fw fa-wrench"></i>
-            <span>Utilities</span>
+            <i class="fas fa-history"></i>
+            <span>Logs</span>
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
             data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
-                <h6 class="collapse-header">Custom Utilities:</h6>
-                <a class="collapse-item" href="utilities-color.html">Colors</a>
-                <a class="collapse-item" href="utilities-border.html">Borders</a>
-                <a class="collapse-item" href="utilities-animation.html">Animations</a>
-                <a class="collapse-item" href="utilities-other.html">Other</a>
+                <h6 class="collapse-header">Logs:</h6>
+                <a class="collapse-item" href="{{route('logs.alquiler')}}">Alquiler</a>
+                <a class="collapse-item" href="utilities-border.html">Alquiler Estado</a>
+                <a class="collapse-item" href="utilities-animation.html">Detalle Factura</a>
+                <a class="collapse-item" href="utilities-other.html">Factura</a>
+                <a class="collapse-item" href="utilities-other.html">Mantenimiento</a>
+                <a class="collapse-item" href="utilities-other.html">Reserva</a>
+                <a class="collapse-item" href="utilities-other.html">Reserva Estado</a>
+                <a class="collapse-item" href="utilities-other.html">Sucursal</a>
+                <a class="collapse-item" href="utilities-other.html">Taller</a>
+                <a class="collapse-item" href="utilities-other.html">Tarifa</a>
+                <a class="collapse-item" href="utilities-other.html">Tipo Vehiculo</a>
+                <a class="collapse-item" href="utilities-other.html">Vehiculo</a>
+                <a class="collapse-item" href="utilities-other.html">Vehiculo Estado</a>
             </div>
         </div>
-    </li> --}}
+    </li>
 
     <!-- Divider -->
     {{-- <hr class="sidebar-divider"> --}}

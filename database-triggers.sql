@@ -118,7 +118,7 @@ BEGIN
             OLD.id_departamento,
             'D',
             v_usuario,
-            usuario_db
+            v_usuario_db
         );
 
         RETURN OLD;

@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+use App\Models\Sucursal;
+use App\Models\Departamento;
+
 class SucursalController extends Controller
 {
     function __construct()
@@ -16,11 +19,15 @@ class SucursalController extends Controller
     }
     
     public function index(Request $request)
-    {        
+    {
+        $sucursales = Sucursal::orderBy('nombre_sucursal')->get();
+        return view('sucursal.index', compact('sucursales'));     
     }
 
     public function create()
     {
+        $departamentos = Departamento::orderBy('nombre_departamento')->get();
+        return view('sucursal.create', compact('departamentos')); 
     }
 
     public function store(Request $request)
@@ -70,6 +77,9 @@ class SucursalController extends Controller
     
     public function edit($id)
     {
+        $s = Sucursal::find($id);
+        $departamentos = Departamento::orderBy('nombre_departamento')->get();
+        return view('sucursal.edit', compact('s', 'departamentos'));
     }
     
     public function update(Request $request, $id)
