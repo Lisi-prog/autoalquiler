@@ -214,3 +214,125 @@ BEGIN
     RETURN v_cantidad_dias * v_precio_dia;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION fn_calcular_factura_alquiler(
+    p_id_alquiler INT
+)
+RETURNS TABLE(
+    monto_base NUMERIC(10,2),
+    monto_recargo NUMERIC(10,2),
+    total NUMERIC(10,2)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_fecha_inicio TIMESTAMP;
+    v_fecha_fin_real TIMESTAMP;
+    v_fecha_fin_prevista TIMESTAMP;
+
+    v_id_vehiculo INT;
+    v_id_tipo_vehiculo INT;
+    v_sucursal_devolucion INT;
+
+    v_precio_dia NUMERIC(10,2);
+    v_recargo_hora NUMERIC(10,2);
+
+    v_dias_alquiler INT;
+    v_horas_recargo INT;
+BEGIN
+
+    -- Obtener datos del alquiler
+    SELECT
+        a.fecha_inicio,
+        a.fecha_fin_real,
+        a.fecha_fin_prevista,
+        a.id_vehiculo,
+        a.sucursal_devolucion
+    INTO
+        v_fecha_inicio,
+        v_fecha_fin_real,
+        v_fecha_fin_prevista,
+        v_id_vehiculo,
+        v_sucursal_devolucion
+    FROM alquiler a
+    WHERE a.id_alquiler = p_id_alquiler;
+
+    -- Validar existencia
+    IF NOT FOUND THEN
+        RAISE EXCEPTION
+            'No existe el alquiler %',
+            p_id_alquiler;
+    END IF;
+
+    -- Obtener tipo de vehículo
+    SELECT id_tipo_vehiculo
+    INTO v_id_tipo_vehiculo
+    FROM vehiculo
+    WHERE id_vehiculo = v_id_vehiculo;
+
+    IF v_id_tipo_vehiculo IS NULL THEN
+        RAISE EXCEPTION
+            'No existe tipo de vehículo para el vehículo %',
+            v_id_vehiculo;
+    END IF;
+
+    -- Obtener tarifa según tipo y sucursal
+    SELECT
+        t.precio_dia,
+        t.porcentaje_recargo_hora
+    INTO
+        v_precio_dia,
+        v_recargo_hora
+    FROM tarifa t
+    WHERE t.id_tipo_vehiculo = v_id_tipo_vehiculo
+      AND t.id_sucursal = v_sucursal_devolucion;
+
+    -- Validar tarifa
+    IF v_precio_dia IS NULL THEN
+        RAISE EXCEPTION
+            'No existe tarifa para tipo vehículo % y sucursal %',
+            v_id_tipo_vehiculo,
+            v_sucursal_devolucion;
+    END IF;
+
+    -- Calcular días de alquiler
+    v_dias_alquiler := CEIL(
+        EXTRACT(EPOCH FROM (
+            v_fecha_fin_real - v_fecha_inicio
+        )) / 86400
+    );
+
+    IF v_dias_alquiler <= 0 THEN
+        v_dias_alquiler := 1;
+    END IF;
+
+    -- Monto base
+    monto_base := v_dias_alquiler * v_precio_dia;
+
+    -- Horas de atraso
+    IF v_fecha_fin_real > v_fecha_fin_prevista THEN
+
+        v_horas_recargo := CEIL(
+            EXTRACT(EPOCH FROM (
+                v_fecha_fin_real - v_fecha_fin_prevista
+            )) / 3600
+        );
+
+    ELSE
+
+        v_horas_recargo := 0;
+
+    END IF;
+
+    -- Monto recargo
+    monto_recargo :=
+        (v_precio_dia * (v_recargo_hora / 100))
+        * v_horas_recargo;
+
+    -- Total
+    total := monto_base + monto_recargo;
+
+    RETURN NEXT;
+
+END;
+$$;

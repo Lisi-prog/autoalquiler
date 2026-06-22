@@ -4,15 +4,23 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
     reg RECORD;
+
+    v_monto_base NUMERIC(10,2);
+    v_monto_recargo NUMERIC(10,2);
+    v_total NUMERIC(10,2);
+
+    v_id_factura INT;
+
     v_contador INT := 0;
 
     cur CURSOR FOR
-        SELECT *
-        FROM alquiler
-        WHERE fecha_fin_real IS NOT NULL
-          AND id_alquiler NOT IN (
-                SELECT id_alquiler
-                FROM factura
+        SELECT a.id_alquiler
+        FROM alquiler a
+        WHERE a.fecha_fin_real IS NOT NULL
+          AND NOT EXISTS (
+                SELECT 1
+                FROM factura f
+                WHERE f.id_alquiler = a.id_alquiler
           );
 BEGIN
 
@@ -25,6 +33,20 @@ BEGIN
 
         BEGIN
 
+            -- Obtener importes calculados
+            SELECT
+                monto_base,
+                monto_recargo,
+                total
+            INTO
+                v_monto_base,
+                v_monto_recargo,
+                v_total
+            FROM fn_calcular_factura_alquiler(
+                reg.id_alquiler
+            );
+
+            -- Crear factura
             INSERT INTO factura(
                 fecha_emision,
                 monto_base,
@@ -34,26 +56,68 @@ BEGIN
             )
             VALUES(
                 CURRENT_TIMESTAMP,
-                1000,
-                0,
-                1000,
+                v_monto_base,
+                v_monto_recargo,
+                v_total,
                 reg.id_alquiler
+            )
+            RETURNING id_factura
+            INTO v_id_factura;
+
+            -- Detalle alquiler
+            INSERT INTO detalle_factura(
+                codigo,
+                descripcion,
+                precio_unitario,
+                subtotal,
+                id_factura
+            )
+            VALUES(
+                1,
+                'Alquiler de vehículo',
+                v_monto_base,
+                v_monto_base,
+                v_id_factura
             );
+
+            -- Detalle recargo
+            IF v_monto_recargo > 0 THEN
+
+                INSERT INTO detalle_factura(
+                    codigo,
+                    descripcion,
+                    precio_unitario,
+                    subtotal,
+                    id_factura
+                )
+                VALUES(
+                    2,
+                    'Recargo por atraso',
+                    v_monto_recargo,
+                    v_monto_recargo,
+                    v_id_factura
+                );
+
+            END IF;
 
             v_contador := v_contador + 1;
 
-            -- Punto de control cada 20 operaciones
-            IF v_contador % 20 = 0 THEN
+            -- Checkpoint cada 20 facturas
+            IF MOD(v_contador, 20) = 0 THEN
+
                 COMMIT;
-                RAISE NOTICE 'Checkpoint: % facturas procesadas',
+
+                RAISE NOTICE
+                    'Checkpoint: % facturas generadas',
                     v_contador;
+
             END IF;
 
         EXCEPTION
             WHEN OTHERS THEN
 
                 RAISE NOTICE
-                    'Error en alquiler %',
+                    'Error al generar factura para alquiler %',
                     reg.id_alquiler;
 
         END;
@@ -62,11 +126,15 @@ BEGIN
 
     CLOSE cur;
 
-    -- Guardar las últimas pendientes
     COMMIT;
+
+    RAISE NOTICE
+        'Proceso finalizado. Facturas generadas: %',
+        v_contador;
 
 END;
 $$;
+
 -- -------------------------------
 
 -- Jobs 2: Actualización masiva de estados de reservas vencidas: Una reserva ya pasó su fecha de inicio y/o nunca se convirtió en alquiler, entonces se marca automáticamente como vencida.
