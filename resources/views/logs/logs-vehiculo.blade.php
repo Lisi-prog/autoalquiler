@@ -1,0 +1,127 @@
+@extends('layouts.app')
+
+@section('titulo', 'Inicio')
+
+@section('content')
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Content Row -->
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            @include('layouts.loanding')
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <div class="position-relative mb-4">
+                        <h4 class="text-center mb-0">
+                            Logs Vehiculo
+                        </h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <div class="table-responsive">
+                                <table id="tabla_sucursal" class="table table-sm table-hover">
+                                    <thead style="background-color: #4e73df;">
+                                        <tr>
+                                            <th class="text-center" style="color:#fff;">ID Log</th>
+                                            <th class="text-center" style="color:#fff;">ID Vehículo</th>
+                                            <th class="text-center" style="color:#fff;">Patente</th>
+                                            <th class="text-center" style="color:#fff;">Marca</th>
+                                            <th class="text-center" style="color:#fff;">Modelo</th>
+                                            <th class="text-center" style="color:#fff;">Detalle Confort</th>
+                                            <th class="text-center" style="color:#fff;">ID Tipo Vehículo</th>
+                                            <th class="text-center" style="color:#fff;">ID Sucursal</th>
+                                            <th class="text-center" style="color:#fff;">Movimiento</th>
+                                            <th class="text-center" style="color:#fff;">Fecha Movimiento</th>
+                                            <th class="text-center" style="color:#fff;">Usuario</th>
+                                            <th class="text-center" style="color:#fff;">Usuario DB</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($logs as $l)
+                                            <tr>
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->id_log ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->id_vehiculo ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->patente ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->marca ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->modelo ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->detalle_confort ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->id_tipo_vehiculo ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->id_sucursal ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->mov ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->fecha_mov ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->usuario ?? '-'}}
+                                                </td>
+
+                                                <td class="text-center" style="vertical-align: middle;">
+                                                    {{$l->usuario_db ?? '-'}}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    $(document).ready(function () { 
+        $('#tabla_sucursal').DataTable({
+            order: [[13, 'desc']],
+            language: {
+                    lengthMenu: 'Mostrar _MENU_ registros por pagina',
+                    zeroRecords: 'No se ha encontrado registros',
+                    info: 'Mostrando pagina _PAGE_ de _PAGES_',
+                    infoEmpty: 'No se ha encontrado registros',
+                    infoFiltered: '(Filtrado de _MAX_ registros totales)',
+                    search: 'Buscar:',
+                    paginate:{
+                        first:"Prim.",
+                        last: "Ult.",
+                        previous: 'Ant.',
+                        next: 'Sig.',
+                    },
+                }
+        });
+    });
+</script>
+@endsection

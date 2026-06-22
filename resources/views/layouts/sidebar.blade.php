@@ -84,18 +84,18 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Logs:</h6>
                 <a class="collapse-item" href="{{route('logs.alquiler')}}">Alquiler</a>
-                <a class="collapse-item" href="utilities-border.html">Alquiler Estado</a>
-                <a class="collapse-item" href="utilities-animation.html">Detalle Factura</a>
-                <a class="collapse-item" href="utilities-other.html">Factura</a>
-                <a class="collapse-item" href="utilities-other.html">Mantenimiento</a>
-                <a class="collapse-item" href="utilities-other.html">Reserva</a>
-                <a class="collapse-item" href="utilities-other.html">Reserva Estado</a>
-                <a class="collapse-item" href="utilities-other.html">Sucursal</a>
-                <a class="collapse-item" href="utilities-other.html">Taller</a>
-                <a class="collapse-item" href="utilities-other.html">Tarifa</a>
-                <a class="collapse-item" href="utilities-other.html">Tipo Vehiculo</a>
-                <a class="collapse-item" href="utilities-other.html">Vehiculo</a>
-                <a class="collapse-item" href="utilities-other.html">Vehiculo Estado</a>
+                <a class="collapse-item" href="{{route('logs.alquiler.estado')}}">Alquiler Estado</a>
+                <a class="collapse-item" href="{{route('logs.detalle.factura')}}">Detalle Factura</a>
+                <a class="collapse-item" href="{{route('logs.factura')}}">Factura</a>
+                <a class="collapse-item" href="{{route('logs.mantenimiento')}}">Mantenimiento</a>
+                <a class="collapse-item" href="{{route('logs.reserva')}}">Reserva</a>
+                <a class="collapse-item" href="{{route('logs.reserva.estado')}}">Reserva Estado</a>
+                <a class="collapse-item" href="{{route('logs.sucursal')}}">Sucursal</a>
+                <a class="collapse-item" href="{{route('logs.taller')}}">Taller</a>
+                <a class="collapse-item" href="{{route('logs.tarifa')}}">Tarifa</a>
+                <a class="collapse-item" href="{{route('logs.tipo.vehiculo')}}">Tipo Vehiculo</a>
+                <a class="collapse-item" href="{{route('logs.vehiculo')}}">Vehiculo</a>
+                <a class="collapse-item" href="{{route('logs.vehiculo.estado')}}">Vehiculo Estado</a>
             </div>
         </div>
     </li>
