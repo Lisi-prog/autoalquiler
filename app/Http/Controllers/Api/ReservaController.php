@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+use App\Models\Reserva;
+
 class ReservaController extends Controller
 {
     function __construct()
@@ -16,7 +18,9 @@ class ReservaController extends Controller
     }
     
     public function index(Request $request)
-    {        
+    {
+        $reservas = Reserva::orderBy('id_reserva', 'desc')->get();
+        return view('reserva.index', compact('reservas'));         
     }
 
     public function create()

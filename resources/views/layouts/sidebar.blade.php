@@ -45,7 +45,7 @@
     </li>
 
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#"
+        <a class="nav-link collapsed" href="{{route('reserva.index')}}"
             aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-clipboard-list"></i>
             <span>Reserva</span>
