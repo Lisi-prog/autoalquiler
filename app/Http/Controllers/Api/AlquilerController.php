@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+use App\Models\Alquiler;
+
+
 class AlquilerController extends Controller
 {
     function __construct()
@@ -17,6 +20,8 @@ class AlquilerController extends Controller
     
     public function index(Request $request)
     {        
+        $alquileres = Alquiler::orderBy('id_alquiler', 'desc')->get();
+        return view('alquiler.index', compact('alquileres')); 
     }
 
     public function create()

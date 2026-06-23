@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Tarifa;
 
 class TarifaController extends Controller
 {
@@ -16,7 +17,9 @@ class TarifaController extends Controller
     }
     
     public function index(Request $request)
-    {        
+    {
+        $tarifas = Tarifa::orderBy('id_tarifa', 'desc')->get();
+        return view('tarifa.index', compact('tarifas')); 
     }
 
     public function create()

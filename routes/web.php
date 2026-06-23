@@ -6,6 +6,8 @@ use App\Http\Controllers\LogsController;
 use App\Http\Controllers\Api\SucursalController;
 use App\Http\Controllers\Api\VehiculoController;
 use App\Http\Controllers\Api\ReservaController;
+use App\Http\Controllers\Api\AlquilerController;
+use App\Http\Controllers\Api\TarifaController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -23,6 +25,8 @@ Route::get('/dashboard', function () {
     Route::resource('sucursal', SucursalController::class);
     Route::resource('vehiculo', VehiculoController::class);
     Route::resource('reserva', ReservaController::class);
+    Route::resource('alquiler', AlquilerController::class);
+    Route::resource('tarifa', TarifaController::class);
 // });
 
 // Route::group(['middleware' => ['auth','role_or_permission:ADMIN']], function () {

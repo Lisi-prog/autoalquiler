@@ -45,6 +45,14 @@
     </li>
 
     <li class="nav-item">
+        <a class="nav-link collapsed" href="{{route('tarifa.index')}}"
+            aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span>Tarifa</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
         <a class="nav-link collapsed" href="{{route('reserva.index')}}"
             aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-clipboard-list"></i>
@@ -53,7 +61,7 @@
     </li>
 
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#"
+        <a class="nav-link collapsed" href="{{route('alquiler.index')}}"
             aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-clipboard-check"></i>
             <span>Alquileres</span>
