@@ -2,7 +2,8 @@ CREATE TABLE cliente (
     id_cliente SERIAL PRIMARY KEY,
     nombre_completo VARCHAR(100),
     dni VARCHAR(10),
-    telefono VARCHAR(30)
+    telefono VARCHAR(30),
+    id_user bigint
 );
 
 CREATE TABLE usuario (

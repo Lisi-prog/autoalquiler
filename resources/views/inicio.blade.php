@@ -14,11 +14,6 @@
 <!-- Begin Page Content -->
 <div class="container-fluid">
 
-    <!-- Page Heading -->
-    {{-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">AutoGest</h1>
-    </div> --}}
-
     <!-- Content Row -->
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -112,10 +107,18 @@
     <div class="row" id="row-result-vehiculo" hidden>
     </div>
 </div>
+@include('modal.confirmar-reserva')
 @endsection
 
 @section('scripts')
 <script src="{{ asset('js\index_inicio.js') }}?v={{ filemtime(public_path('js\index_inicio.js')) }}"></script>
+<script>
+    const user = @json(auth()->check()
+        ? auth()->user()->cliente?->id_cliente
+        : null);
+
+    console.log(user);
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 

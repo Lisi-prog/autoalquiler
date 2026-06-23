@@ -129,7 +129,13 @@ $(document).ready(function () {
                                                         $ ${e.total}
                                                     </h1>
 
-                                                    <button class="btn btn-lg btn-primary btn-block mt-3">
+                                                    <button
+                                                        class="btn btn-lg btn-primary btn-block mt-3 btn-reservar"
+                                                        data-id="${e.id_vehiculo}"
+                                                        data-marca="${e.marca}"
+                                                        data-modelo="${e.modelo}"
+                                                        data-sucursal="${e.sucursal}"
+                                                        data-total="${e.total}">
                                                         Reservar
                                                     </button>
                                                 </div>
@@ -156,4 +162,59 @@ $(document).ready(function () {
             });
         }
     });
+});
+
+$(document).on('click', '.btn-reservar', function () {
+
+    let fechaInicio = $('#fecha_retiro').val();
+    let fechaFin = $('#fecha_devolucion').val();
+
+    $('#idVehiculoReserva').val($(this).data('id'));
+
+    $('#modalVehiculo').text(
+        $(this).data('marca') + ' ' + $(this).data('modelo')
+    );
+
+    $('#modalSucursal').text(
+        $(this).data('sucursal')
+    );
+
+    $('#modalFechaInicio').text(fechaInicio);
+    $('#modalFechaFin').text(fechaFin);
+
+    $('#modalTotal').text(
+        '$ ' + $(this).data('total')
+    );
+
+    $('#modalReserva').modal('show');
+});
+
+$('#btnConfirmarReserva').on('click', function () {
+    console.log($('#idVehiculoReserva').val(), $('#fecha_retiro').val(), $('#fecha_devolucion').val(), $('#sucursal_retiro').val(), $('#sucursal_devolucion').val(), user);
+    $.ajax({
+        url: '/reserva',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            id_vehiculo: $('#idVehiculoReserva').val(),
+            fecha_inicio: $('#fecha_retiro').val(),
+            fecha_fin: $('#fecha_devolucion').val(),
+            sucursal_retiro: $('#sucursal_retiro').val(),
+            sucursal_devolucion: $('#sucursal_devolucion').val(),
+            id_cliente: user
+        },
+        success: function(res) {
+
+            $('#modalReserva').modal('hide');
+
+            alert('Reserva creada correctamente');
+
+            // opcional:
+            // location.reload();
+        },
+        error: function() {
+            alert('Ocurrió un error al crear la reserva');
+        }
+    });
+
 });

@@ -18,10 +18,16 @@ class Cliente extends Model
         'id_cliente',
         'nombre_completo',
         'dni',
-        'telefono'
+        'telefono',
+        'id_user'
     ];
 
     public function reservas(){
         return $this->hasMany(Reserva::class, 'id_reserva');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id');
     }
 }
