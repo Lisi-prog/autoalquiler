@@ -48,7 +48,7 @@ class ReservaController extends Controller
                 $request->fecha_inicio,
                 $request->fecha_fin,
                 $request->sucursal_retiro,
-                $request->sucursal_devolucion,
+                $request->sucursal_devolucion ?? $request->sucursal_retiro,
                 $request->id_cliente,
                 $request->id_vehiculo
             ]

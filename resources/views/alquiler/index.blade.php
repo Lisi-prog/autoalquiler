@@ -42,22 +42,34 @@
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->fecha_inicio ? \Carbon\Carbon::parse($a->fecha_inicio)->format('d/m/Y') : '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->fecha_fin_prevista ? \Carbon\Carbon::parse($a->fecha_fin_prevista)->format('d/m/Y') : '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->fecha_fin_real ? \Carbon\Carbon::parse($a->fecha_fin_real)->format('d/m/Y') : '-'}}</td>
-                                            <td class= 'text-center' style="vertical-align: middle;">{{$a->vehiculo->km_inicio ?? '-'}}</td>
-                                            <td class= 'text-center' style="vertical-align: middle;">{{$a->vehiculo->km_fin ?? '-'}}</td>
-                                            <td class= 'text-center' style="vertical-align: middle;">{{$a->vehiculo->id_reserva ?? '-'}}</td>
+                                            <td class= 'text-center' style="vertical-align: middle;">{{$a->km_inicio ?? '-'}}</td>
+                                            <td class= 'text-center' style="vertical-align: middle;">{{$a->km_fin ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->sucursalRetiro->nombre_sucursal ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->sucursalDevolucion->nombre_sucursal  ?? '-'}}</td>
+                                            <td class= 'text-center' style="vertical-align: middle;">{{$a->id_reserva ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->cliente->nombre_completo ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->vehiculo->patente ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$a->getEstado() ?? '-'}}</td>
-                                            <td class= 'text-center' style="vertical-align: middle;">-
-                                                {{-- <a href="{{ route('reserva.edit', $r->id_reserva) }}" class="btn btn-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button class="btn btn-danger btn-eliminar"
-                                                        data-id="{{ $r->id_reserva }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button> --}}
+                                            <td class= 'text-center' style="vertical-align: middle;">
+                                                @switch($a->getIdEstado())
+                                                    @case(1)
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-danger btn-finalizar"
+                                                            data-id="{{ $a->id_alquiler }}"
+                                                            data-toggle="modal"
+                                                            data-target="#modalFinalizarAlquiler">
+                                                            <i class="fas fa-flag-checkered"></i>
+                                                        </button>
+                                                        @break
+                                                    @case(2)
+                                                        <a href="{{ route('factura.pdf', $a->id_alquiler) }}"
+                                                            class="btn btn-primary"
+                                                            target="_blank">
+                                                            <i class="fas fa-file-pdf"></i>
+                                                        </a>
+                                                        @break
+                                                @endswitch
                                             </td>
                                         </tr>
                                     @endforeach
@@ -70,6 +82,7 @@
         </div>
     </div>
 </div>
+@include('alquiler.m-finalizar-alquiler')
 @endsection
 
 @section('scripts')
@@ -93,22 +106,42 @@
                 }
         });
 
-        $('.btn-eliminar').click(function() {
+        let alquilerId = null;
 
-            if (!confirm('¿Está seguro que dar de BAJA el vehiculo?')) {
-                return;
-            }
+        document.querySelectorAll('.btn-finalizar').forEach(btn => {
+            btn.addEventListener('click', function () {
+                alquilerId = this.dataset.id;
 
-            let id = $(this).data('id');
+                const form = document.getElementById('formFinalizarAlquiler');
+
+                form.action = `/alquiler/${alquilerId}/finalizar`;
+            });
+        });
+
+        $('#formFinalizarAlquiler').submit(function (e) {
+            e.preventDefault();
+
+            let url = $(this).attr('action');
 
             $.ajax({
-                url: '/vehiculo/' + id,
-                type: 'DELETE',
+                url: url,
+                type: 'POST',
                 data: {
-                    _token: '{{ csrf_token() }}'
+                    _token: '{{ csrf_token() }}',
+                    _method: 'PATCH',
+                    fecha_fin_real: $('input[name="fecha_fin_real"]').val(),
+                    km_fin: $('input[name="km_fin"]').val(),
+                    sucursal_devolucion: $('select[name="sucursal_devolucion"]').val()
                 },
-                success: function(response) {
+                success: function (response) {
+                    alert(response.mensaje);
+
+                    $('#modalFinalizarAlquiler').modal('hide'); // Bootstrap 4
                     location.reload();
+                },
+                error: function (xhr) {
+                    let msg = xhr.responseJSON?.mensaje ?? 'Error';
+                    alert(msg);
                 }
             });
         });

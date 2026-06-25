@@ -11,6 +11,7 @@ use Carbon\Carbon;
 
 use App\Models\Sucursal;
 use App\Models\Vehiculo;
+use App\Models\Vehiculo_x_estado;
 use App\Models\Imagen_vehiculo;
 use App\Models\Tipo_vehiculo;
 
@@ -202,4 +203,15 @@ class VehiculoController extends Controller
         ], 200);
     }
 
+    public function activar_vehiculo($id){
+        try {
+            Vehiculo_x_estado::create([
+                'id_vehiculo' => $id,
+                'id_estado_vehiculo' => 2,
+            ]);
+            return redirect()->route('vehiculo.index')->with('mensaje', 'El vehiculo se dio de alta.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al dar alta el vehículo.');
+        } 
+    }
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\VehiculoController;
 use App\Http\Controllers\Api\ReservaController;
 use App\Http\Controllers\Api\AlquilerController;
 use App\Http\Controllers\Api\TarifaController;
+use App\Http\Controllers\Api\FacturaController;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () {
@@ -23,6 +24,7 @@ Route::get('/dashboard', function () {
 
 // Route::group(['middleware' => ['auth','role_or_permission:ADMIN|GERENTE']], function () {
     Route::resource('sucursal', SucursalController::class);
+    Route::post('/vehiculo/activar/{id}', [VehiculoController::class, 'activar_vehiculo'])->name('vehiculo.activar');
     Route::resource('vehiculo', VehiculoController::class);
     Route::resource('reserva', ReservaController::class);
     Route::resource('alquiler', AlquilerController::class);
@@ -50,5 +52,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::patch('/reserva/{id}/generar', [ReservaController::class, 'generarDesdeReserva'])
+    ->middleware('auth');
+
+Route::patch('/alquiler/{id}/finalizar', [AlquilerController::class, 'finalizar'])->middleware('auth');
+
+Route::get('/alquiler/{id}/factura/pdf', [FacturaController::class, 'generarPdf'])->middleware('auth')->name('factura.pdf');
 
 require __DIR__.'/auth.php';

@@ -40,4 +40,8 @@ class Vehiculo extends Model
     public function getEstado(){
         return Vehiculo_x_estado::where('id_vehiculo', $this->id_vehiculo)->orderBy('fecha_estado', 'desc')->first()->estado->nombre_estado_vehiculo;
     }
+
+    public function getIdEstado(){
+        return Vehiculo_x_estado::where('id_vehiculo', $this->id_vehiculo)->orderBy('fecha_estado', 'desc')->first()->estado->id_estado_vehiculo;
+    }
 }

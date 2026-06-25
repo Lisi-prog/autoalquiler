@@ -84,3 +84,30 @@ INSERT INTO estado_alquiler VALUES
 (2, 'Finalizado'),
 (3, 'Retrasado'),
 (4, 'Cancelado');
+
+CREATE ROLE cliente;
+CREATE ROLE empleado;
+CREATE ROLE gerente;
+
+GRANT SELECT ON reserva TO cliente;
+GRANT SELECT ON alquiler TO cliente;
+GRANT SELECT ON factura TO cliente;
+GRANT SELECT ON detalle_factura TO cliente;
+
+GRANT SELECT, INSERT, UPDATE ON reserva TO empleado;
+GRANT SELECT, INSERT, UPDATE ON alquiler TO empleado;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON vehiculo TO gerente;
+GRANT SELECT, INSERT, UPDATE, DELETE ON mantenimiento TO gerente;
+GRANT SELECT ON reserva TO gerente;
+GRANT SELECT ON alquiler TO gerente;
+GRANT SELECT ON factura TO gerente;
+
+CREATE USER gino WITH PASSWORD '123';
+GRANT empleado TO gino;
+
+CREATE USER gian WITH PASSWORD '123';
+GRANT gerente TO gian;
+
+CREATE USER rodrigo WITH PASSWORD '123';
+GRANT cliente TO rodrigo;

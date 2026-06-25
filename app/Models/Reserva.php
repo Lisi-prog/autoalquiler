@@ -43,4 +43,8 @@ class Reserva extends Model
     public function getEstado(){
         return Reserva_x_estado::where('id_reserva', $this->id_reserva)->orderBy('fecha_estado', 'desc')->first()->estado->nombre_estado_reserva;
     }
+
+    public function getIdEstado(){
+        return Reserva_x_estado::where('id_reserva', $this->id_reserva)->orderBy('fecha_estado', 'desc')->first()->estado->id_estado_reserva;
+    }
 }

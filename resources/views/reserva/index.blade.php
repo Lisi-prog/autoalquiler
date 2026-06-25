@@ -5,7 +5,7 @@
 @section('content')
 <!-- Begin Page Content -->
 <div class="container-fluid">
-
+@include('layouts.mensaje')
     <!-- Content Row -->
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -42,14 +42,17 @@
                                             <td class= 'text-center' style="vertical-align: middle;">{{$r->cliente->nombre_completo ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$r->vehiculo->patente ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$r->getEstado() ?? '-'}}</td>
-                                            <td class= 'text-center' style="vertical-align: middle;">-
-                                                {{-- <a href="{{ route('reserva.edit', $r->id_reserva) }}" class="btn btn-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button class="btn btn-danger btn-eliminar"
-                                                        data-id="{{ $r->id_reserva }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button> --}}
+                                            <td class= 'text-center' style="vertical-align: middle;">
+                                                @if ($r->getIdEstado() == 1)
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-success btn-generar"
+                                                    data-id="{{ $r->id_reserva }}"
+                                                    data-toggle="modal"
+                                                    data-target="#modalGenerarAlquiler">
+                                                    <i class="fas fa-check-square"></i>
+                                                </button>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -62,11 +65,12 @@
         </div>
     </div>
 </div>
+@include('reserva.m-generar-alquiler')
 @endsection
 
 @section('scripts')
 <script>
-    $(document).ready(function () { 
+    $(document).ready(function async () { 
         $('#tabla_vehiculo').DataTable({
             order: [],
             language: {
@@ -101,6 +105,42 @@
                 },
                 success: function(response) {
                     location.reload();
+                }
+            });
+        });
+
+        let reservaId = null;
+
+        document.querySelectorAll('.btn-generar').forEach(btn => {
+            btn.addEventListener('click', function () {
+                reservaId = this.dataset.id;
+
+                const form = document.getElementById('formGenerarAlquiler');
+
+                form.action = `/reserva/${reservaId}/generar`;
+            });
+        });
+
+        $('#formGenerarAlquiler').submit(function(e) {
+            e.preventDefault();
+
+            let km = $('#km_inicio').val();
+            let url = $(this).attr('action');
+
+            $.ajax({
+                url: url,
+                type: 'PATCH',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    km_inicio: km
+                },
+                success: function(response) {
+                    alert(response.mensaje);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    let msg = xhr.responseJSON?.mensaje ?? 'Error';
+                    alert(msg);
                 }
             });
         });

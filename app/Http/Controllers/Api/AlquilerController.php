@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 
 use App\Models\Alquiler;
+use App\Models\Sucursal;
 
 
 class AlquilerController extends Controller
@@ -21,7 +22,8 @@ class AlquilerController extends Controller
     public function index(Request $request)
     {        
         $alquileres = Alquiler::orderBy('id_alquiler', 'desc')->get();
-        return view('alquiler.index', compact('alquileres')); 
+        $sucursales = Sucursal::orderBy('nombre_sucursal')->get();
+        return view('alquiler.index', compact('alquileres', 'sucursales')); 
     }
 
     public function create()

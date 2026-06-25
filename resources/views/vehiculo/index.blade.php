@@ -5,11 +5,12 @@
 @section('content')
 <!-- Begin Page Content -->
 <div class="container-fluid">
-
+@include('layouts.mensaje')
     <!-- Content Row -->
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             @include('layouts.loanding')
+            
             <div class="card shadow mb-4">
                 <div class="card-body">
                     <div class="position-relative mb-4">
@@ -49,6 +50,16 @@
                                             <td class= 'text-center' style="vertical-align: middle;">{{$v->tipo->nombre_tipo_vehiculo}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$v->sucursal->nombre_sucursal}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">
+                                                @if ($v->getIdEstado() == 1)
+                                                <form action="{{ route('vehiculo.activar', $v->id_vehiculo) }}" method="POST" id="formSucursal">
+                                                    @method('post')
+                                                    @csrf 
+                                                    <button type="submit" class="btn btn-success">
+                                                        <i class="fas fa-check-square"></i>
+                                                    </button>
+                                                </form>
+                                                @endif
+                                                
                                                 <a href="{{ route('vehiculo.edit', $v->id_vehiculo) }}" class="btn btn-warning">
                                                     <i class="fas fa-edit"></i>
                                                 </a>

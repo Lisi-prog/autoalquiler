@@ -51,4 +51,8 @@ class Alquiler extends Model
     public function getEstado(){
         return Alquiler_x_estado::where('id_alquiler', $this->id_alquiler)->orderBy('fecha_estado', 'desc')->first()->estado->nombre_estado_alquiler;
     }
+
+    public function getIdEstado(){
+        return Alquiler_x_estado::where('id_alquiler', $this->id_alquiler)->orderBy('fecha_estado', 'desc')->first()->estado->id_estado_alquiler;
+    }
 }
