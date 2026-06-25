@@ -85,6 +85,15 @@ INSERT INTO estado_alquiler VALUES
 (3, 'Retrasado'),
 (4, 'Cancelado');
 
+INSERT INTO roles(name, guard_name, created_at, update_at) values 
+('ADMIN', 'web', '2024-02-15 12:18:59', '2024-02-15 12:18:59'),
+('GERENTE', 'web', '2024-02-15 12:18:59', '2024-02-15 12:18:59'),
+('EMPLEADO', 'web', '2024-02-15 12:18:59', '2024-02-15 12:18:59'),
+('CLIENTE', 'web', '2024-02-15 12:18:59', '2024-02-15 12:18:59');
+
+INSERT INTO model_has_role values(idrol, 'App\Models\User', iduser)
+
+
 CREATE ROLE cliente;
 CREATE ROLE empleado;
 CREATE ROLE gerente;
