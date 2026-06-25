@@ -54,7 +54,7 @@
     </li>
     @endhasanyrole
 
-    @hasanyrole('ADMIN|EMPLEADO')
+    @hasanyrole('ADMIN|EMPLEADO|GERENTE')
     <li class="nav-item">
         <a class="nav-link collapsed" href="{{route('reserva.index')}}"
             aria-expanded="true" aria-controls="collapseTwo">
