@@ -56,7 +56,7 @@
                                                 <td class= 'text-center' style="vertical-align: middle;">{{$l->id_cliente ?? '-'}}</td>
                                                 <td class= 'text-center' style="vertical-align: middle;">{{$l->id_vehiculo ?? '-'}}</td>
                                                 <td class= 'text-center' style="vertical-align: middle;">{{$l->mov ?? '-'}}</td>
-                                                <td class= 'text-center' style="vertical-align: middle;">{{$l->fecha_mov ?? '-'}}</td>
+                                                <td class= 'text-center' style="vertical-align: middle;">{{\Carbon\Carbon::parse($l->fecha_mov)->format('Y-m-d H:i')}}</td>
                                                 <td class= 'text-center' style="vertical-align: middle;">{{$l->usuario ?? '-'}}</td>
                                                 <td class= 'text-center' style="vertical-align: middle;">{{$l->usuario_db ?? '-'}}</td>
                                             </tr>

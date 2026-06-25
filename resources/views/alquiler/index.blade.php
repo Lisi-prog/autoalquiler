@@ -16,12 +16,13 @@
                         <h4 class="text-center mb-0">
                             Alquiler
                         </h4>
-
+                        @if (Auth::user()->hasAnyRole(['ADMIN', 'EMPLEADO', 'GERENTE']))
                         <a href="{{ route('alquiler.create') }}"
                         class="btn btn-primary position-absolute"
                         style="right: 0; top: 50%; transform: translateY(-50%);">
                             <i class="fas fa-plus"></i> Crear
                         </a>
+                        @endif
                     </div>
                     <div class="row">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -59,6 +60,7 @@
                                             <td class= 'text-center' style="vertical-align: middle;">
                                                 @switch($a->getIdEstado())
                                                     @case(1)
+                                                    @if (Auth::user()->hasAnyRole(['ADMIN', 'EMPLEADO', 'GERENTE']))
                                                         <button
                                                             type="button"
                                                             class="btn btn-danger btn-finalizar"
@@ -66,7 +68,8 @@
                                                             data-toggle="modal"
                                                             data-target="#modalFinalizarAlquiler">
                                                             <i class="fas fa-flag-checkered"></i>
-                                                        </button>
+                                                        </button>    
+                                                    @endif
                                                         @break
                                                     @case(2)
                                                         <a href="{{ route('factura.pdf', $a->id_alquiler) }}"

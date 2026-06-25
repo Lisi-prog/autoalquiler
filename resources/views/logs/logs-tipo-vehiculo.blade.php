@@ -53,7 +53,7 @@
                                                 </td>
 
                                                 <td class="text-center" style="vertical-align: middle;">
-                                                    {{$l->fecha_mov ?? '-'}}
+                                                    {{\Carbon\Carbon::parse($l->fecha_mov)->format('Y-m-d H:i')}}
                                                 </td>
 
                                                 <td class="text-center" style="vertical-align: middle;">

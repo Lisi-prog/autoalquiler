@@ -19,7 +19,13 @@ class ReservaController extends Controller
     
     public function index(Request $request)
     {
-        $reservas = Reserva::orderBy('id_reserva', 'desc')->get();
+        if (Auth::check() && Auth::user()->hasRole('CLIENTE')) {
+            $reservas = Reserva::where('id_cliente', Auth::user()->cliente->id_cliente)
+                ->orderBy('id_reserva', 'desc')
+                ->get();
+        } else {
+            $reservas = Reserva::orderBy('id_reserva', 'desc')->get();
+        }
         return view('reserva.index', compact('reservas'));         
     }
 

@@ -23,7 +23,14 @@ class AlquilerController extends Controller
     
     public function index(Request $request)
     {        
-        $alquileres = Alquiler::orderBy('id_alquiler', 'desc')->get();
+        if (Auth::check() && Auth::user()->hasRole('CLIENTE')) {
+            $alquileres = Alquiler::where('id_cliente', Auth::user()->cliente->id_cliente)
+                ->orderBy('id_alquiler', 'desc')
+                ->get();
+        } else {
+            $alquileres = Alquiler::orderBy('id_alquiler', 'desc')->get();
+        }
+        
         $sucursales = Sucursal::orderBy('nombre_sucursal')->get();
         return view('alquiler.index', compact('alquileres', 'sucursales')); 
     }

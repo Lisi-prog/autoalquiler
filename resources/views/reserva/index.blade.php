@@ -43,7 +43,7 @@
                                             <td class= 'text-center' style="vertical-align: middle;">{{$r->vehiculo->patente ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">{{$r->getEstado() ?? '-'}}</td>
                                             <td class= 'text-center' style="vertical-align: middle;">
-                                                @if ($r->getIdEstado() == 1)
+                                                @if ($r->getIdEstado() == 1 && Auth::user()->hasAnyRole(['ADMIN', 'EMPLEADO', 'GERENTE']))
                                                 <button
                                                     type="button"
                                                     class="btn btn-success btn-generar"
@@ -52,6 +52,8 @@
                                                     data-target="#modalGenerarAlquiler">
                                                     <i class="fas fa-check-square"></i>
                                                 </button>
+                                                @else
+                                                    -
                                                 @endif
                                             </td>
                                         </tr>
