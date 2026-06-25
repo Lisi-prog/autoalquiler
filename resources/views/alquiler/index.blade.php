@@ -16,6 +16,12 @@
                         <h4 class="text-center mb-0">
                             Alquiler
                         </h4>
+
+                        <a href="{{ route('alquiler.create') }}"
+                        class="btn btn-primary position-absolute"
+                        style="right: 0; top: 50%; transform: translateY(-50%);">
+                            <i class="fas fa-plus"></i> Crear
+                        </a>
                     </div>
                     <div class="row">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">

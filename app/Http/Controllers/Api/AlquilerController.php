@@ -11,6 +11,8 @@ use Carbon\Carbon;
 
 use App\Models\Alquiler;
 use App\Models\Sucursal;
+use App\Models\Cliente;
+use App\Models\Vehiculo;
 
 
 class AlquilerController extends Controller
@@ -28,6 +30,10 @@ class AlquilerController extends Controller
 
     public function create()
     {
+        $clientes = Cliente::orderBy('nombre_completo')->get();
+        $vehiculos = Vehiculo::orderBy('patente')->get();
+        $sucursales = Sucursal::orderBy('nombre_sucursal')->get();
+        return view('alquiler.create', compact('clientes', 'vehiculos', 'sucursales')); 
     }
 
     public function store(Request $request)
