@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Tarifa;
+use App\Models\Tipo_vehiculo;
+use App\Models\Sucursal;
 
 class TarifaController extends Controller
 {
@@ -24,6 +26,11 @@ class TarifaController extends Controller
 
     public function create()
     {
+        $tiposVehiculo = Tipo_vehiculo::orderBy('nombre_tipo_vehiculo')->get();
+
+        $sucursales = Sucursal::orderBy('nombre_sucursal')->get();
+
+        return view('tarifa.create', compact('tiposVehiculo', 'sucursales')); 
     }
 
     public function store(Request $request)

@@ -51,6 +51,8 @@
                     id="btnConfirmarReserva">
                     Confirmar Reserva
                 </button>
+                @else
+                    <span class="ms-2 text-sm text-gray-600 me-2">Inicia sesion para reservar.</span>
                 @endauth
 
                 <button

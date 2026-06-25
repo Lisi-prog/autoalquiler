@@ -17,7 +17,7 @@
                             Tarifa
                         </h4>
 
-                        <a href="{{ route('sucursal.create') }}"
+                        <a href="{{ route('tarifa.create') }}"
                         class="btn btn-primary position-absolute"
                         style="right: 0; top: 50%; transform: translateY(-50%);">
                             <i class="fas fa-plus"></i> Crear
